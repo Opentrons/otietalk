@@ -6,7 +6,11 @@ Have python 3.10 installed
 `python --version`
 Have pipenv installed
 `pip install -U pipenv`
-From the root of this repo
+clone the repo
+`git clone https://github.com/Opentrons/otietalk.git`
+move into the repo you just cloned
+`cd otietalk`
+Install the dependencies
 `pipenv install`
 Run the wizard
 `pipenv python run mr_wizard.py`
