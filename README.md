@@ -1,6 +1,6 @@
-pipenv install -e git+https://github.com/kraanzu/textual_extras.git@main#egg=textual_extras
+# Mr Wizard
 
-From a terminal
+> From a terminal
 
 - Have python 3.10 installed
   - `python --version`
@@ -15,3 +15,8 @@ From a terminal
 - Run the wizard
     - `pipenv python run mr_wizard.py`
 - Follow the prompts
+
+
+### Other notes
+
+> How to use pipenv to install direct `pipenv install -e git+https://github.com/kraanzu/textual_extras.git@main#egg=textual_extras`
