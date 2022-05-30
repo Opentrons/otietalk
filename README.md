@@ -2,7 +2,7 @@
 
 > From a terminal
 
-- Have python 3.10 installed
+- Have a python 3.10.X installed
   - `python --version`
 - Have pipenv installed
   - `pip install -U pipenv`
