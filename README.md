@@ -1,0 +1,1 @@
+pipenv install -e git+https://github.com/kraanzu/textual_extras.git@main#egg=textual_extras

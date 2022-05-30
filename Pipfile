@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+httpx = "*"
+rich = "*"
+textual = "*"
+textual-extras = {editable = true, ref = "main", git = "https://github.com/kraanzu/textual_extras.git"}
+pyfiglet = "*"
+anyio = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
