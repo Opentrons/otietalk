@@ -98,9 +98,9 @@ async def app():
             console.print(pipettes.json())
             pipettes_json = pipettes.json()
             choices = []
-            if pipettes_json.get("left"):
+            if not ((pipettes_json["left"]["name"] is None) or (pipettes_json["left"]["name"] == "none")) :
                 choices.append(pipettes_json["left"]["name"])
-            if pipettes_json.get("right"):
+            if not ((pipettes_json["right"]["name"] is None) or (pipettes_json["right"]["name"] == "none")):
                 choices.append(pipettes_json["right"]["name"])
             if len(choices) == 0:
                 console.print(
