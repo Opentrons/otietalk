@@ -4,7 +4,8 @@ import sys
 
 from anyio import to_thread
 from httpx import Response
-
+from rich.console import Console 
+LOG_FILE_PATH = "responses.log"
 
 async def prompt(message: str) -> str:
     def _prompt() -> str:
@@ -14,7 +15,7 @@ async def prompt(message: str) -> str:
     return await to_thread.run_sync(_prompt)
 
 
-async def log_response(response: Response, print_timing: bool = False) -> None:
+async def log_response(response: Response, print_timing: bool = False, console: Console = Console()) -> None:
     """Log the response status, url, timing, and json response."""
     endpoint = f"\nstatus_code = {response.status_code}\n{response.request.method} {response.url}"  # noqa: E501
     formatted_response_body = json.dumps(response.json(), indent=4)
@@ -23,11 +24,10 @@ async def log_response(response: Response, print_timing: bool = False) -> None:
     if elapsed > 1:
         elapsed_output = f"{str(elapsed)} *LONG*"
     if print_timing:
-        print(endpoint)
-        print("\n")
-        print(elapsed_output)
-    # print(formatted_response_body) # too big to do in console usefully
-    with open("responses.log", "a") as log:
+        console.print(endpoint)
+        console.print(elapsed_output)
+        # console.print(formatted_response_body) # too big to do in console usefully
+    with open(LOG_FILE_PATH, "a") as log:
         log.write(endpoint)
         log.write("\n")
         log.write(elapsed_output)

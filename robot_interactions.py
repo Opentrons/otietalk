@@ -2,6 +2,7 @@ import random
 from typing import Any, Dict, List
 
 from anyio import create_task_group
+from rich.console import Console
 
 from robot_client import RobotClient
 from util import log_response
@@ -10,18 +11,19 @@ from util import log_response
 class RobotInteractions:
     """Reusable amalgamations of API calls to the robot."""
 
-    def __init__(self, robot_client: RobotClient) -> None:
+    def __init__(self, robot_client: RobotClient, console: Console = Console()) -> None:
         self.robot_client = robot_client
+        self.console = console
 
     async def execute_command(
-        self, run_id: str, req_body: Dict[str, Any], timeout_sec: float = 60.0
+        self, run_id: str, req_body: Dict[str, Any], timeout_sec: float = 60.0, print_timing: bool = False,
     ) -> None:
         """Post a command to a run waiting until complete then log the response."""
         params = {"waitUntilComplete": True}
         command = await self.robot_client.post_run_command(
             run_id=run_id, req_body=req_body, params=params, timeout_sec=timeout_sec
         )
-        await log_response(command)
+        await log_response(command,print_timing=print_timing, console=self.console)
 
     async def get_module_id(self, module_model: str) -> str:
         """Given a moduleModel get the id of that module."""
