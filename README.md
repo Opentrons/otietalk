@@ -22,7 +22,7 @@
 > From a terminal in the root directory of the repository
 
 - Run
-  - `pipenv python run hs_commands.py`
+  - `pipenv run python hs_commands.py`
 - Follow the prompts
 - logs are in `responses.log`
 
@@ -31,7 +31,7 @@
 > From a terminal in the root directory of the repository
 
 - Run the wizard
-  - `pipenv python run hs_labware.py`
+  - `pipenv run python hs_labware.py`
 - Follow the prompts
 
 ### Other notes
