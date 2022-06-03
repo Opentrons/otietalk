@@ -4,5 +4,6 @@
         "Figlet",
         "pyfiglet",
         "Renderable"
-    ]
+    ],
+    "python.formatting.provider": "black"
 }

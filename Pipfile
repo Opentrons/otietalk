@@ -12,6 +12,11 @@ pyfiglet = "*"
 anyio = "*"
 
 [dev-packages]
+black = "*"
+isort = "*"
 
 [requires]
 python_version = "3.10"
+
+[pipenv]
+allow_prereleases = true

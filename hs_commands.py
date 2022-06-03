@@ -1,17 +1,12 @@
 import asyncio
-import pprint
-from typing import Dict, List, Optional
 
-import anyio
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Confirm, IntPrompt, Prompt
 from rich.theme import Theme
 
-from base_cli import BaseCli
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
-from util import is_valid_IPAddress, is_valid_port, log_response, prompt
+from util import log_response
 from wizard import Wizard
 
 HS_SLOT = "1"
@@ -68,7 +63,7 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
                 "commandType": "heaterShakerModule/setTargetShakeSpeed",
                 "params": {
                     "moduleId": hs_id,
-                    "rpm": 200,
+                    "rpm": 300,
                 },
             }
         }
@@ -87,12 +82,12 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
                 "commandType": "heaterShakerModule/startSetTargetTemperature",
                 "params": {
                     "moduleId": hs_id,
-                    "temperature": 25,
+                    "temperature": 37,
                 },
             }
         }
 
-        await_target_temp_command = {
+        await_temp_command = {
             "data": {
                 "commandType": "heaterShakerModule/awaitTemperature",
                 "params": {
@@ -116,7 +111,7 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
             set_target_shake_speed_command,
             stop_shake_command,
             set_target_temp_command,
-            await_target_temp_command,
+            await_temp_command,
             deactivate_heater_command,
         ]
 
@@ -134,6 +129,10 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
             hs_module_data = await robot_interactions.get_module_data_by_id(hs_id)
             console.print("Module data after the command completes")
             console.print(hs_module_data)
+            if command["data"]["commandType"] in ["heaterShakerModule/setTargetShakeSpeed"]:
+                shake_watch_seconds = 10
+                console.print(Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue"))
+                await asyncio.sleep(shake_watch_seconds)
 
 
 if __name__ == "__main__":
@@ -149,7 +148,7 @@ Check HS Commands Live
 Hello, let us send commands to a Heater Shaker :smiley: 
 1. Have a heater shaker connected via USB and powered on.
 2. Have your heater shaker secured in a slot and the deck clear (just in case).
-3. Note that all commands are being sent with waitUntilComplete=true
+3. Note that all commands are being sent with waitUntilComplete=true & timeout=59000
 """,
             style="bold magenta",
         )

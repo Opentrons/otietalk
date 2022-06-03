@@ -19,7 +19,7 @@ class RobotInteractions:
         self, run_id: str, req_body: Dict[str, Any], timeout_sec: float = 60.0, print_timing: bool = False,
     ) -> None:
         """Post a command to a run waiting until complete then log the response."""
-        params = {"waitUntilComplete": True}
+        params = {"waitUntilComplete": True, "timeout": 59000}
         command = await self.robot_client.post_run_command(
             run_id=run_id, req_body=req_body, params=params, timeout_sec=timeout_sec
         )
