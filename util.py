@@ -4,7 +4,8 @@ import sys
 
 from anyio import to_thread
 from httpx import Response
-from rich.console import Console 
+from rich.console import Console
+
 LOG_FILE_PATH = "responses.log"
 
 async def prompt(message: str) -> str:
