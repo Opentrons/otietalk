@@ -108,8 +108,8 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
         commands = [
             open_latch_command,
             close_latch_command,
-            #set_target_shake_speed_command,
-            #stop_shake_command,
+            set_target_shake_speed_command,
+            stop_shake_command,
             set_target_temp_command,
             await_temp_command,
             deactivate_heater_command,
