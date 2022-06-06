@@ -23,22 +23,6 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
         hs_id = await robot_interactions.get_module_id(
             module_model="heaterShakerModuleV1"
         )
-        run = await robot_client.post_run(req_body={"data": {}})
-        await log_response(run)
-        run_id = run.json()["data"]["id"]
-        load_module_command = {
-            "data": {
-                "commandType": "loadModule",
-                "params": {
-                    "model": "heaterShakerModuleV1",
-                    "location": {"slotName": HS_SLOT},
-                    "moduleId": hs_id,
-                },
-            }
-        }
-        await robot_interactions.execute_command(
-            run_id=run_id, req_body=load_module_command
-        )
 
         open_latch_command = {
             "data": {
@@ -87,14 +71,6 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
             }
         }
 
-        await_temp_command = {
-            "data": {
-                "commandType": "heaterShakerModule/awaitTemperature",
-                "params": {
-                    "moduleId": hs_id,
-                },
-            }
-        }
 
         deactivate_heater_command = {
             "data": {
@@ -108,10 +84,9 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
         commands = [
             open_latch_command,
             close_latch_command,
-            #set_target_shake_speed_command,
-            #stop_shake_command,
+            set_target_shake_speed_command,
+            stop_shake_command,
             set_target_temp_command,
-            await_temp_command,
             deactivate_heater_command,
         ]
 
@@ -123,8 +98,8 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
                 )
             )
             console.print(command)
-            await robot_interactions.execute_command(
-                run_id=run_id, req_body=command, print_timing=True
+            await robot_interactions.execute_simple_command(
+                req_body=command, print_timing=True
             )
             if command["data"]["commandType"] in ["heaterShakerModule/deactivateHeater"]:
                 console.print(Panel(f"Wait 3 seconds to see if deactivate works.", style="bold blue"))

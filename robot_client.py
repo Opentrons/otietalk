@@ -141,6 +141,22 @@ class RobotClient:
         response.raise_for_status()
         return response
 
+    async def post_simple_command(
+        self,
+        req_body: Dict[str, object],
+        params: Dict[str, Any],
+        timeout_sec: float = 30.0,
+    ) -> Response:
+        """POST /commands."""
+        response = await self.httpx_client.post(
+            url=f"{self.base_url}/commands",
+            json=req_body,
+            params=params,
+            timeout=timeout_sec,
+        )
+        response.raise_for_status()
+        return response
+
     async def get_runs(self) -> Response:
         """GET /runs."""
         response = await self.httpx_client.get(url=f"{self.base_url}/runs")

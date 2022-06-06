@@ -25,6 +25,25 @@ class RobotInteractions:
         )
         await log_response(command,print_timing=print_timing, console=self.console)
 
+    async def execute_simple_command(
+        self, req_body: Dict[str, Any], timeout_sec: float = 60.0, print_timing: bool = False,
+    ) -> None:
+        """Post a simple command waiting until complete then log the response."""
+        params = {"waitUntilComplete": True, "timeout": 59000}
+        command = await self.robot_client.post_simple_command(
+            req_body=req_body, params=params, timeout_sec=timeout_sec
+        )
+        await log_response(command,print_timing=print_timing, console=self.console)
+
+
+    async def get_current_run(
+        self, print_timing: bool = False
+    ) -> None:
+        """Post a simple command waiting until complete then log the response."""
+        runs = await self.robot_client.get_runs()
+        await log_response(runs,print_timing=print_timing, console=self.console)
+        current_run_link = runs.json()
+
     async def get_module_id(self, module_model: str) -> str:
         """Given a moduleModel get the id of that module."""
         modules = await self.robot_client.get_modules()
