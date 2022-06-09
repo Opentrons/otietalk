@@ -34,6 +34,17 @@
   - `pipenv run python hs_labware.py`
 - Follow the prompts
 
+### Pretty print into a log file
+
+go into the file `rich_it.py`
+paste in your string to format in the variable `your_garbage`
+
+```shell
+pipenv run python rich_it.py
+```
+
+look in pretty.log for the output
+
 ### Other notes
 
 > How to use pipenv to install direct `pipenv install -e git+https://github.com/kraanzu/textual_extras.git@main#egg=textual_extras`
