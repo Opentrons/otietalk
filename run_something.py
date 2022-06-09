@@ -1,4 +1,5 @@
 import asyncio
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.theme import Theme
@@ -7,8 +8,6 @@ from robot_client import RobotClient
 from robot_interactions import RobotInteractions
 from util import log_response
 from wizard import Wizard
-
-
 
 
 async def stuff(robot_ip: str, robot_port: str) -> None:
