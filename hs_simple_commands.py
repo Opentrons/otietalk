@@ -6,7 +6,6 @@ from rich.theme import Theme
 
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
-from util import log_response
 from wizard import Wizard
 
 HS_SLOT = "1"
@@ -114,7 +113,7 @@ if __name__ == "__main__":
         Panel(
             f"""
 Check HS Commands Live
-Hello, let us send commands to a Heater Shaker :smiley: 
+Hello, let us send commands to a Heater Shaker :smiley:
 1. Have a heater shaker connected via USB and powered on.
 2. Have your heater shaker secured in a slot and the deck clear (just in case).
 3. Note that all commands are being sent with waitUntilComplete=true & timeout=59000

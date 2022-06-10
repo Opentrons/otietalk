@@ -16,12 +16,7 @@ black = "*"
 isort = "*"
 flake8 = "*"
 mypy = "*"
-pylint = "*"
-pycodestyle = "*"
-pydocstyle = "*"
 bandit = "*"
-yapf = "*"
-autopep8 = "*"
 
 [requires]
 python_version = "3.10"

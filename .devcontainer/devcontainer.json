@@ -22,7 +22,6 @@
     "settings": {
         "python.defaultInterpreterPath": "./.venv/bin/python",
         "python.linting.enabled": true,
-        "python.linting.pylintEnabled": true,
         "python.formatting.provider": "black"
     },
     "extensions": [
@@ -41,7 +40,7 @@
         "ms-vscode.makefile-tools",
         "yzhang.markdown-all-in-one"
     ],
-    "postCreateCommand": "pip install --user -U pip pipenv poetry && pipenv install --dev",
+    "postCreateCommand": "pip install --user -U pip pipenv && make setup",
     "remoteUser": "vscode",
     "features": {
         "common": {
