@@ -35,13 +35,9 @@ class RobotClient:
 
     @staticmethod
     @contextlib.asynccontextmanager
-    async def make(
-        host: str, port: str, version: str
-    ) -> AsyncGenerator[RobotClient, None]:
+    async def make(host: str, port: str, version: str) -> AsyncGenerator[RobotClient, None]:
         with concurrent.futures.ThreadPoolExecutor() as worker_executor:
-            async with httpx.AsyncClient(
-                headers={"opentrons-version": version}
-            ) as httpx_client:
+            async with httpx.AsyncClient(headers={"opentrons-version": version}) as httpx_client:
                 yield RobotClient(
                     httpx_client=httpx_client,
                     worker_executor=worker_executor,
@@ -125,9 +121,7 @@ class RobotClient:
 
     async def get_protocol(self, protocol_id: str) -> Response:
         """GET /protocols/{protocol_id}."""
-        response = await self.httpx_client.get(
-            url=f"{self.base_url}/protocols/{protocol_id}"
-        )
+        response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}")
         return response
 
     async def post_protocol(self, files: List[Path]) -> Response:
@@ -135,9 +129,7 @@ class RobotClient:
         file_payload = []
         for file in files:
             file_payload.append(("files", open(file, "rb")))
-        response = await self.httpx_client.post(
-            url=f"{self.base_url}/protocols", files=file_payload
-        )
+        response = await self.httpx_client.post(url=f"{self.base_url}/protocols", files=file_payload)
         response.raise_for_status()
         return response
 
@@ -165,9 +157,7 @@ class RobotClient:
 
     async def post_run(self, req_body: Dict[str, object]) -> Response:
         """POST /runs."""
-        response = await self.httpx_client.post(
-            url=f"{self.base_url}/runs", json=req_body
-        )
+        response = await self.httpx_client.post(url=f"{self.base_url}/runs", json=req_body)
         response.raise_for_status()
         return response
 
@@ -247,9 +237,7 @@ class RobotClient:
 
     async def get_analysis(self, protocol_id: str, analysis_id: str) -> Response:
         """GET /protocols/{protocol_id}/{analysis_id}."""
-        response = await self.httpx_client.get(
-            url=f"{self.base_url}/protocols/{protocol_id}/analyses/{analysis_id}"
-        )
+        response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}/analyses/{analysis_id}")
         response.raise_for_status()
         return response
 

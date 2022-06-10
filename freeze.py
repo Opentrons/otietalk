@@ -17,13 +17,9 @@ PIPETTE_MOUNT = "right"
 async def freeze(robot_ip: str, robot_port: str) -> None:
     """Run the series of commands to repetitively move a pipette to various wells
     on a plate. This exposed a freezing issue."""
-    async with RobotClient.make(
-        host=f"http://{robot_ip}", port=robot_port, version="*"
-    ) as robot_client:
+    async with RobotClient.make(host=f"http://{robot_ip}", port=robot_port, version="*") as robot_client:
         await robot_client.wait_until_alive()
-        robot_interactions: RobotInteractions = RobotInteractions(
-            robot_client=robot_client
-        )
+        robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
         for _ in range(3):
             run = await robot_client.post_run(req_body={"data": {}})
             await log_response(run)
@@ -41,9 +37,7 @@ async def freeze(robot_ip: str, robot_port: str) -> None:
                     },
                 }
             }
-            await robot_interactions.execute_command(
-                run_id=run_id, req_body=load_plate_command
-            )
+            await robot_interactions.execute_command(run_id=run_id, req_body=load_plate_command)
 
             load_pipette_command = {
                 "data": {
@@ -55,9 +49,7 @@ async def freeze(robot_ip: str, robot_port: str) -> None:
                     },
                 }
             }
-            await robot_interactions.execute_command(
-                run_id=run_id, req_body=load_pipette_command
-            )
+            await robot_interactions.execute_command(run_id=run_id, req_body=load_pipette_command)
 
             for well in LABWARE_DESTINATION_WELLS:
                 move_to_well_command = {
@@ -75,9 +67,7 @@ async def freeze(robot_ip: str, robot_port: str) -> None:
                     # I want synchronous traffic alongside the execute command call.
                     tg.start_soon(robot_client.get_run, run_id)
                     tg.start_soon(robot_interactions.query_random_runs)
-                    tg.start_soon(
-                        robot_interactions.execute_command, run_id, move_to_well_command
-                    )
+                    tg.start_soon(robot_interactions.execute_command, run_id, move_to_well_command)
 
         home_command = {
             "data": {

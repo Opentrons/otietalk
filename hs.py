@@ -10,9 +10,7 @@ def run(context):
     hs_mod = context.load_module("heaterShakerModuleV1", "1")
 
     # Load adapter + labware on module.
-    hs_plate = hs_mod.load_labware(
-        "opentrons_96_flat_bottom_adapter_nest_wellplate_200ul_flat"
-    )
+    hs_plate = hs_mod.load_labware("opentrons_96_flat_bottom_adapter_nest_wellplate_200ul_flat")
 
     tiprack_20ul = [context.load_labware("opentrons_96_tiprack_20ul", 3)]
     p20 = context.load_instrument("p20_single_gen2", "right", tip_racks=tiprack_20ul)
@@ -26,9 +24,7 @@ def run(context):
     p20.dispense(15, hs_plate["A1"])
     p20.drop_tip()
 
-    hs_mod.set_and_wait_for_shake_speed(
-        rpm=300
-    )  # Waits until H/S has reached 300rpm speed
+    hs_mod.set_and_wait_for_shake_speed(rpm=300)  # Waits until H/S has reached 300rpm speed
 
     context.delay(minutes=1)
 

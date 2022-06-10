@@ -1,19 +1,16 @@
+""""""
 import os
-from typing import Dict, List, Optional
+from typing import List, Optional
 
-import anyio
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Confirm, IntPrompt, Prompt
-from rich.theme import Theme
+from rich.prompt import Confirm, Prompt
 
-from robot_client import RobotClient
-from robot_interactions import RobotInteractions
 from util import is_valid_IPAddress, is_valid_port, LOG_FILE_PATH
 
 
 class Wizard:
-    """reusable interactions of"""
+    """Reusable CLI interactions"""
 
     def __init__(self, console: Optional[Console]) -> None:
         if console:
@@ -57,7 +54,8 @@ class Wizard:
             )
         elif not is_valid_port(port):
             port = Prompt.ask(
-                f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just hit enter) ",
+                f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just"
+                " hit enter) ",
                 console=self.console,
                 default="31950",
                 show_default=False,
@@ -74,6 +72,7 @@ class Wizard:
             self.validate_port(port)
 
     def reset_log(self) -> bool:
+        """Reset the log file."""
         response = Confirm.ask(f"Would you like to reset the log file {LOG_FILE_PATH}?")
         if response:
             os.remove(LOG_FILE_PATH)

@@ -43,14 +43,16 @@ def validate_ip(ip: Optional[str] = None) -> str:
 def validate_port(port: Optional[int | str] = None) -> str:
     if port == "" or port is None:
         port = Prompt.ask(
-            "Greetings what is [i]your[/i] [bold red]robot port[/] (most likely it is 31950 and you can just hit enter) ?",
+            "Greetings what is [i]your[/i] [bold red]robot port[/] (most likely it is 31950 and you can just hit"
+            " enter) ?",
             console=console,
             default="31950",
             show_default=False,
         )
     elif not is_valid_port(port):
         port = Prompt.ask(
-            f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just hit enter) ",
+            f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just hit"
+            " enter) ",
             console=console,
             default="31950",
             show_default=False,
@@ -76,16 +78,12 @@ async def app():
     )
     ip = validate_ip()
     port = validate_port()
-    async with RobotClient.make(
-        host=f"http://{ip}", port=port, version="*"
-    ) as robot_client:
+    async with RobotClient.make(host=f"http://{ip}", port=port, version="*") as robot_client:
         try:
             console.print("Let us make sure your robot is reachable.")
             await robot_client.wait_until_alive()
             health = await robot_client.get_health()
-            console.print(
-                f"Robot is reachable. Here is the {health.request.url} response"
-            )
+            console.print(f"Robot is reachable. Here is the {health.request.url} response")
             console.print(health.json())
             console.print(
                 Panel(
@@ -98,7 +96,7 @@ async def app():
             console.print(pipettes.json())
             pipettes_json = pipettes.json()
             choices = []
-            if not ((pipettes_json["left"]["name"] is None) or (pipettes_json["left"]["name"] == "none")) :
+            if not ((pipettes_json["left"]["name"] is None) or (pipettes_json["left"]["name"] == "none")):
                 choices.append(pipettes_json["left"]["name"])
             if not ((pipettes_json["right"]["name"] is None) or (pipettes_json["right"]["name"] == "none")):
                 choices.append(pipettes_json["right"]["name"])
@@ -130,9 +128,7 @@ async def app():
                     style="bold magenta",
                 )
             )
-            use_tiprack = Confirm.ask(
-                "Will you be using a tiprack and picking up a tip?"
-            )
+            use_tiprack = Confirm.ask("Will you be using a tiprack and picking up a tip?")
             tiprack_name = None
             tiprack_slot = None
             #############################
@@ -153,11 +149,7 @@ opentrons_96_tiprack_1000ul
                         style="bold magenta",
                     )
                 )
-                tiprack_slot = str(
-                    IntPrompt.ask(
-                        "What slot will the tiprack be in (1-11)?", console=console
-                    )
-                )
+                tiprack_slot = str(IntPrompt.ask("What slot will the tiprack be in (1-11)?", console=console))
             ##############################
             hs_id = await ri.get_module_id(module_model="heaterShakerModuleV1")
             # what location for the HS?
@@ -262,9 +254,7 @@ Clear the rest of the deck so there are no collisions.
                 console.print("Picking up tip.")
                 await ri.execute_command(run_id=run_id, req_body=pickup_tip_command)
             #########################
-            await prompt(
-                "When you are ready to move to pipette to the Heater Shaker press enter."
-            )
+            await prompt("When you are ready to move to pipette to the Heater Shaker press enter.")
             mapping: Dict[str, List[str]] = {
                 "opentrons_96_flat_bottom_adapter_nest_wellplate_200ul_flat": [
                     "A1",

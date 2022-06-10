@@ -4,18 +4,13 @@
 
 ## Install
 
-> From a terminal
+### Dev container
 
-- Have a python 3.10.X installed
-  - `python --version`
-- Have pipenv installed
-  - `pip install -U pipenv`
+- Have docker installed
 - clone the repo
   - `git clone https://github.com/Opentrons/otietalk.git`
-- move into the repo you just cloned
-  - `cd otietalk`
-- Install the dependencies
-  - `pipenv install`
+- Have VSCode open the dev container
+- Use the VSCode terminal
 
 ## Heater Shaker commands
 

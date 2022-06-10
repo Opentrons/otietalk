@@ -14,15 +14,9 @@ HS_SLOT = "1"
 
 async def hs_commands(robot_ip: str, robot_port: str) -> None:
     """Run the series of commands necessary to evaluate tip height against labware on the Heater Shaker."""  # noqa: E501
-    async with RobotClient.make(
-        host=f"http://{robot_ip}", port=robot_port, version="*"
-    ) as robot_client:
-        robot_interactions: RobotInteractions = RobotInteractions(
-            robot_client=robot_client
-        )
-        hs_id = await robot_interactions.get_module_id(
-            module_model="heaterShakerModuleV1"
-        )
+    async with RobotClient.make(host=f"http://{robot_ip}", port=robot_port, version="*") as robot_client:
+        robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
+        hs_id = await robot_interactions.get_module_id(module_model="heaterShakerModuleV1")
 
         open_latch_command = {
             "data": {
@@ -71,7 +65,6 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
             }
         }
 
-
         deactivate_heater_command = {
             "data": {
                 "commandType": "heaterShakerModule/deactivateHeater",
@@ -98,9 +91,7 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
                 )
             )
             console.print(command)
-            await robot_interactions.execute_simple_command(
-                req_body=command, print_timing=True
-            )
+            await robot_interactions.execute_simple_command(req_body=command, print_timing=True)
             if command["data"]["commandType"] in ["heaterShakerModule/deactivateHeater"]:
                 console.print(Panel(f"Wait 3 seconds to see if deactivate works.", style="bold blue"))
                 await asyncio.sleep(3)
@@ -109,14 +100,14 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
             console.print(hs_module_data)
             if command["data"]["commandType"] in ["heaterShakerModule/setTargetShakeSpeed"]:
                 shake_watch_seconds = 10
-                console.print(Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue"))
+                console.print(
+                    Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue")
+                )
                 await asyncio.sleep(shake_watch_seconds)
 
 
 if __name__ == "__main__":
-    custom_theme = Theme(
-        {"info": "dim cyan", "warning": "magenta", "danger": "bold red"}
-    )
+    custom_theme = Theme({"info": "dim cyan", "warning": "magenta", "danger": "bold red"})
     console = Console(theme=custom_theme)
     wizard = Wizard(console)
     console.print(

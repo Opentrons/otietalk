@@ -8,6 +8,7 @@ from rich.console import Console
 
 LOG_FILE_PATH = "responses.log"
 
+
 async def prompt(message: str) -> str:
     def _prompt() -> str:
         print(message)
@@ -45,7 +46,8 @@ def is_valid_IPAddress(sample_str):
         result = False
     return result
 
-def is_valid_port(port: str|int) -> str:
+
+def is_valid_port(port: str | int) -> str:
     """Returns True if given string is a
     valid IP Address, else returns False"""
     if isinstance(port, str):

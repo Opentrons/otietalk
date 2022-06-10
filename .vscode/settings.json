@@ -2,8 +2,9 @@
     "cSpell.words": [
         "anyio",
         "Figlet",
+        "labware",
         "pyfiglet",
-        "Renderable"
-    ],
-    "python.formatting.provider": "black"
+        "Renderable",
+        "labware"
+    ]
 }

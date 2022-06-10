@@ -49,9 +49,7 @@ class ApiAction(Button):
     mouse_over = Reactive(False)
 
     def render(self) -> Panel:
-        return Panel(
-            self.label, style=("bold on red" if self.mouse_over else "")
-        )
+        return Panel(self.label, style=("bold on red" if self.mouse_over else ""))
 
     def on_enter(self) -> None:
         self.mouse_over = True
@@ -151,27 +149,19 @@ class MyApp(App):
 
     async def get_health(self, ip) -> None:
         health = ""
-        async with RobotClient.make(
-            host=f"http://{ip}", port=31950, version="*"
-        ) as robot_client:
+        async with RobotClient.make(host=f"http://{ip}", port=31950, version="*") as robot_client:
             health = await robot_client.get_health()
         json = JSON(health.text)
         await self.body.update(json)
-        await self.timing.update(
-            Text(f"Call to {health.request.url}\nelapsed time = {health.elapsed}")
-        )
+        await self.timing.update(Text(f"Call to {health.request.url}\nelapsed time = {health.elapsed}"))
 
     async def get_runs(self, ip) -> None:
         health = ""
-        async with RobotClient.make(
-            host=f"http://{ip}", port=31950, version="*"
-        ) as robot_client:
+        async with RobotClient.make(host=f"http://{ip}", port=31950, version="*") as robot_client:
             health = await robot_client.get_runs()
         json = JSON(health.text)
         await self.runs_view.update(json)
-        await self.timing.update(
-            Text(f"Call to {health.request.url}\nelapsed time = {health.elapsed}")
-        )
+        await self.timing.update(Text(f"Call to {health.request.url}\nelapsed time = {health.elapsed}"))
 
     async def get_ip(self):
         """ """

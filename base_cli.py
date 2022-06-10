@@ -12,9 +12,7 @@ class BaseCli:
         self.parser: argparse.ArgumentParser = argparse.ArgumentParser(
             formatter_class=Formatter,
         )
-        self.parser.add_argument(
-            "--robot_ip", type=str, help="Your robot ip address like: 192.168.50.89"
-        )
+        self.parser.add_argument("--robot_ip", type=str, help="Your robot ip address like: 192.168.50.89")
 
         self.parser.add_argument(
             "--robot_port",

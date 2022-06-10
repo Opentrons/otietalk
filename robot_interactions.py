@@ -16,51 +16,47 @@ class RobotInteractions:
         self.console = console
 
     async def execute_command(
-        self, run_id: str, req_body: Dict[str, Any], timeout_sec: float = 60.0, print_timing: bool = False,
+        self,
+        run_id: str,
+        req_body: Dict[str, Any],
+        timeout_sec: float = 60.0,
+        print_timing: bool = False,
     ) -> None:
         """Post a command to a run waiting until complete then log the response."""
         params = {"waitUntilComplete": True, "timeout": 59000}
         command = await self.robot_client.post_run_command(
             run_id=run_id, req_body=req_body, params=params, timeout_sec=timeout_sec
         )
-        await log_response(command,print_timing=print_timing, console=self.console)
+        await log_response(command, print_timing=print_timing, console=self.console)
 
     async def execute_simple_command(
-        self, req_body: Dict[str, Any], timeout_sec: float = 60.0, print_timing: bool = False,
+        self,
+        req_body: Dict[str, Any],
+        timeout_sec: float = 60.0,
+        print_timing: bool = False,
     ) -> None:
         """Post a simple command waiting until complete then log the response."""
         params = {"waitUntilComplete": True, "timeout": 59000}
-        command = await self.robot_client.post_simple_command(
-            req_body=req_body, params=params, timeout_sec=timeout_sec
-        )
-        await log_response(command,print_timing=print_timing, console=self.console)
+        command = await self.robot_client.post_simple_command(req_body=req_body, params=params, timeout_sec=timeout_sec)
+        await log_response(command, print_timing=print_timing, console=self.console)
 
-
-    async def get_current_run(
-        self, print_timing: bool = False
-    ) -> None:
+    async def get_current_run(self, print_timing: bool = False) -> None:
         """Post a simple command waiting until complete then log the response."""
         runs = await self.robot_client.get_runs()
-        await log_response(runs,print_timing=print_timing, console=self.console)
+        await log_response(runs, print_timing=print_timing, console=self.console)
         current_run_link = runs.json()
 
     async def get_module_id(self, module_model: str) -> str:
         """Given a moduleModel get the id of that module."""
         modules = await self.robot_client.get_modules()
         await log_response(modules)
-        ids: List[str] = [
-            module["id"]
-            for module in modules.json()["data"]
-            if module["moduleModel"] == module_model
-        ]
+        ids: List[str] = [module["id"] for module in modules.json()["data"] if module["moduleModel"] == module_model]
         if len(ids) > 1:
             raise ValueError(
                 f"You have multiples of a module {module_model} attached and that is not supported."  # noqa: E501
             )
         elif len(ids) == 0:
-            raise ValueError(
-                f"No module attached to the robot has moduleModel of {module_model}"
-            )
+            raise ValueError(f"No module attached to the robot has moduleModel of {module_model}")
         return ids[0]
 
     async def query_random_runs(self) -> None:
@@ -80,9 +76,7 @@ class RobotInteractions:
         """Given a moduleModel get the id of that module."""
         modules = await self.robot_client.get_modules()
         await log_response(modules)
-        data = [
-            module for module in modules.json()["data"] if module["id"] == module_id
-        ]
+        data = [module for module in modules.json()["data"] if module["id"] == module_id]
         if len(data) == 0:
             raise ValueError(f"No module attached to the robot has id of {module_id}")
         return data[0]
