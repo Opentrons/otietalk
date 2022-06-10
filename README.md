@@ -6,11 +6,14 @@
 
 ### Dev container
 
-- Have docker installed
-- clone the repo
+- Have Docker installed.
+- Clone the repo.
   - `git clone https://github.com/Opentrons/otietalk.git`
-- Have VSCode open the dev container
-- Use the VSCode terminal
+- Have VSCode open the dev container.
+- Open VSCode command palette `command shift p`
+- Select Python Interpreter ![Select the python interpreter](img/PythonSelectInterpreter.png)
+  -  Select the .venv in this directory. ![Select the .venv in this directory](img/venv.png)
+- Use the VSCode terminal not an external one.
 
 ## Heater Shaker commands
 

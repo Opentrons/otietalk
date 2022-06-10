@@ -20,7 +20,6 @@
         "source=local,target=/home/vscode/.local,type=volume"
     ],
     "settings": {
-        "python.defaultInterpreterPath": "./.venv/bin/python",
         "python.linting.enabled": true,
         "python.formatting.provider": "black"
     },
