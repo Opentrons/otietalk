@@ -14,8 +14,13 @@ mypy:
 bandit:
 	pipenv run bandit -r ./*.py
 
-.PHONY: clean
+.PHONY: isort
+isort:
+	pipenv run isort ./*.py
+
+.PHONY: lint
 lint:
+	$(MAKE) isort
 	$(MAKE) black
 	$(MAKE) mypy
 	$(MAKE) flake8
