@@ -584,7 +584,6 @@ async def test_increase_temp_while_heating(robot_client: RobotClient, console: C
     assert temp_in_range(hs_module_data["data"]["currentTemperature"], celsius)
 
 
-@pytest.mark.josh
 @pytest.mark.asyncio
 async def test_decrease_temp_while_heating(robot_client: RobotClient, console: Console) -> None:
     """While the HS is already heating, set to a new higher temp."""
