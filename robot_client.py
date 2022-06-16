@@ -158,7 +158,6 @@ class RobotClient:
     async def post_run(self, req_body: Dict[str, object]) -> Response:
         """POST /runs."""
         response = await self.httpx_client.post(url=f"{self.base_url}/runs", json=req_body)
-        response.raise_for_status()
         return response
 
     async def patch_run(self, run_id: str, req_body: Dict[str, object]) -> Response:
@@ -190,7 +189,7 @@ class RobotClient:
             params=params,
             timeout=timeout_sec,
         )
-        response.raise_for_status()
+        # response.raise_for_status()
         return response
 
     async def get_run_commands(self, run_id: str) -> Response:

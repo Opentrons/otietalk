@@ -1,6 +1,7 @@
 import ipaddress
 import json
 import sys
+import time
 
 from anyio import to_thread
 from httpx import Response
@@ -30,10 +31,12 @@ async def log_response(response: Response, print_timing: bool = False, console: 
         console.print(elapsed_output)
         # console.print(formatted_response_body) # too big to do in console usefully
     with open(LOG_FILE_PATH, "a") as log:
+        log.write(str(time.time_ns()))
         log.write(endpoint)
         log.write("\n")
         log.write(elapsed_output)
         log.write(formatted_response_body)
+        log.write("\n____________________________________\n")
 
 
 def is_valid_IPAddress(sample_str):

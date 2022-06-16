@@ -1,22 +1,22 @@
 .PHONY: black
 black:
-	pipenv run python -m black ./*.py
+	pipenv run python -m black ./*.py ./tests/*.py
 
 .PHONY: flake8
 flake8:
-	pipenv run python -m flake8  ./*.py
+	pipenv run python -m flake8  ./*.py ./tests/*.py
 
 .PHONY: mypy
 mypy:
-	pipenv run python -m mypy ./*.py
+	pipenv run python -m mypy ./*.py ./tests/*.py
 
 .PHONY: bandit
 bandit:
-	pipenv run bandit -r ./*.py
+	pipenv run python -m bandit -r ./*.py ./tests/*.py
 
 .PHONY: isort
 isort:
-	pipenv run isort ./*.py
+	pipenv run python -m isort ./*.py ./tests/*.py
 
 .PHONY: lint
 lint:

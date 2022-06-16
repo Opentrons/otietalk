@@ -4,6 +4,15 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.theme import Theme
 
+from commands import (
+    close_latch_command,
+    deactivate_heater_command,
+    open_latch_command,
+    set_target_shake_speed_command,
+    set_target_temp_command,
+    stop_shake_command,
+    wait_for_temp_command,
+)
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
 from util import log_response
@@ -32,97 +41,36 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
         }
         await robot_interactions.execute_command(run_id=run_id, req_body=load_module_command)
 
-        open_latch_command = {
-            "data": {
-                "commandType": "heaterShakerModule/openLatch",
-                "params": {
-                    "moduleId": hs_id,
-                },
-            }
-        }
+        _open_latch_command = open_latch_command(hs_id)
+        _close_latch_command = close_latch_command(hs_id)
+        _set_target_shake_speed_command = set_target_shake_speed_command(hs_id, 300)
 
-        close_latch_command = {
-            "data": {
-                "commandType": "heaterShakerModule/closeLatch",
-                "params": {
-                    "moduleId": hs_id,
-                },
-            }
-        }
+        _stop_shake_command = stop_shake_command(hs_id)
 
-        set_target_shake_speed_command = {
-            "data": {
-                "commandType": "heaterShakerModule/setTargetShakeSpeed",
-                "params": {
-                    "moduleId": hs_id,
-                    "rpm": 300,
-                },
-            }
-        }
+        _set_target_temp_command = set_target_temp_command(hs_id, 37.00)
+        _wait_for_temp_command = wait_for_temp_command(hs_id, 37.00)
 
-        stop_shake_command = {
-            "data": {
-                "commandType": "heaterShakerModule/stopShake",
-                "params": {
-                    "moduleId": hs_id,
-                },
-            }
-        }
-
-        set_target_temp_command = {
-            "data": {
-                "commandType": "heaterShakerModule/startSetTargetTemperature",
-                "params": {
-                    "moduleId": hs_id,
-                    "temperature": 37,
-                },
-            }
-        }
-
-        await_temp_command = {
-            "data": {
-                "commandType": "heaterShakerModule/awaitTemperature",
-                "params": {
-                    "moduleId": hs_id,
-                },
-            }
-        }
-
-        deactivate_heater_command = {
-            "data": {
-                "commandType": "heaterShakerModule/deactivateHeater",
-                "params": {
-                    "moduleId": hs_id,
-                },
-            }
-        }
+        _deactivate_heater_command = deactivate_heater_command(hs_id)
 
         commands = [
-            open_latch_command,
-            close_latch_command,
-            set_target_shake_speed_command,
-            stop_shake_command,
-            set_target_temp_command,
-            await_temp_command,
-            deactivate_heater_command,
+            _open_latch_command,
+            _close_latch_command,
+            _set_target_shake_speed_command,
+            _stop_shake_command,
+            _set_target_temp_command,
+            _wait_for_temp_command,
+            _deactivate_heater_command,
         ]
 
         for command in commands:
-            console.print(
-                Panel(
-                    f"[bold green]Sending Command[/]",
-                    style="bold magenta",
-                )
-            )
-            console.print(command)
             await robot_interactions.execute_command(run_id=run_id, req_body=command, print_timing=True)
-            if command["data"]["commandType"] in ["heaterShakerModule/deactivateHeater"]:
+            if command["data"]["commandType"] in ["heaterShaker/deactivateHeater"]:
                 console.print(Panel(f"Wait 3 seconds to see if deactivate works.", style="bold blue"))
                 await asyncio.sleep(3)
             hs_module_data = await robot_interactions.get_module_data_by_id(hs_id)
-            console.print("Module data after the command completes")
+            console.print(f"Module data after the {command['data']['commandType']} completes")
             console.print(hs_module_data)
-            if command["data"]["commandType"] in ["heaterShakerModule/setTargetShakeSpeed"]:
+            if command["data"]["commandType"] in ["heaterShaker/setAndWaitForShakeSpeed"]:
                 shake_watch_seconds = 10
                 console.print(
                     Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue")
