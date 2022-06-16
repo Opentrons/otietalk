@@ -64,6 +64,12 @@
 
 ## Temperature Module V2 Labware
 
+Labware that may be used:
+
+- opentrons_96_aluminumblock_nest_wellplate_100ul
+- opentrons_96_aluminumblock_biorad_wellplate_200ul
+- opentrons_96_aluminumblock_generic_pcr_strip_200ul
+
 > From a terminal in the root directory of the repository
 
 - Run the wizard
