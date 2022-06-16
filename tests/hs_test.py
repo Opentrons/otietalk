@@ -53,22 +53,7 @@ class HSTestRun:
         self.robot_interactions: RobotInteractions = robot_interactions
         self.console = console
         self.hs_id = await robot_interactions.get_module_id(module_model="heaterShakerModuleV1")
-        run = await self.robot_client.post_run(req_body={"data": {}})
-        await log_response(run)
-        if run.status_code == 409:
-            console.print(
-                "There is a 409 conflict when creating the run.  Stopping current run and trying again.",
-                style="bold red",
-            )
-            current_run_id = await self.robot_interactions.get_current_run()
-            stop = await self.robot_client.post_run_action(
-                run_id=current_run_id, req_body={"data": {"actionType": "stop"}}
-            )
-            assert stop.status_code == 201
-            await self.robot_interactions.wait_until_run_status(run_id=current_run_id, expected_status="stopped")
-            run = await robot_client.post_run(req_body={"data": {}})
-            await log_response(run)
-        self.run_id = run.json()["data"]["id"]
+        self.run_id = await self.robot_interactions.force_create_new_run()
         await robot_interactions.execute_command(
             run_id=self.run_id,
             req_body=load_module_command(model="heaterShakerModuleV1", slot_name=HS_SLOT, module_id=self.hs_id),

@@ -146,7 +146,7 @@ class RobotClient:
             params=params,
             timeout=timeout_sec,
         )
-        response.raise_for_status()
+        # response.raise_for_status()
         return response
 
     async def get_runs(self) -> Response:

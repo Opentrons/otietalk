@@ -1,5 +1,5 @@
 import random
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Optional, cast
 
 import anyio
 from anyio import create_task_group
@@ -24,16 +24,19 @@ class RobotInteractions:
         req_body: Dict[str, Any],
         timeout_sec: float = 60.0,
         print_timing: bool = False,
+        print_command: bool = True,
     ) -> Response:
         """Post a command to a run waiting until complete then log the response."""
-        self.console.print()
-        self.console.print(
-            Panel(
-                f"[bold green]Sending Command[/]",
-                style="bold magenta",
+
+        if print_command:
+            self.console.print()
+            self.console.print(
+                Panel(
+                    f"[bold green]Sending Command[/]",
+                    style="bold magenta",
+                )
             )
-        )
-        self.console.print(req_body)
+            self.console.print(req_body)
         if timeout_sec != 60.0:
             params = {"waitUntilComplete": True, "timeout": int(timeout_sec) * 1000}
         else:
@@ -49,17 +52,33 @@ class RobotInteractions:
         req_body: Dict[str, Any],
         timeout_sec: float = 60.0,
         print_timing: bool = False,
-    ) -> None:
+    ) -> Response:
         """Post a simple command waiting until complete then log the response."""
-        params = {"waitUntilComplete": True, "timeout": 59000}
+        self.console.print()
+        self.console.print(
+            Panel(
+                f"[bold green]Sending Command[/]",
+                style="bold magenta",
+            )
+        )
+        self.console.print(req_body)
+        if timeout_sec != 60.0:
+            params = {"waitUntilComplete": True, "timeout": int(timeout_sec) * 1000}
+        else:
+            params = {"waitUntilComplete": True, "timeout": 59000}
         command = await self.robot_client.post_simple_command(req_body=req_body, params=params, timeout_sec=timeout_sec)
         await log_response(command, print_timing=print_timing, console=self.console)
+        return command
 
-    async def get_current_run(self, print_timing: bool = False) -> str:
+    async def get_current_run(self, print_timing: bool = False) -> Optional[str]:
         """Post a simple command waiting until complete then log the response."""
         runs = await self.robot_client.get_runs()
         await log_response(runs, print_timing=print_timing, console=self.console)
-        return runs.json()["links"]["current"]["href"].replace("/runs/", "")
+        try:
+            return runs.json()["links"]["current"]["href"].replace("/runs/", "")
+        except KeyError:
+            self.console.print("No current run.")
+        return None
 
     async def get_module_id(self, module_model: str) -> str:
         """Given a moduleModel get the id of that module."""
@@ -113,3 +132,37 @@ class RobotInteractions:
                 get_run_response = await self.robot_client.get_run(run_id=run_id)
 
         return cast(Dict[str, Any], get_run_response.json()["data"])
+
+    async def is_current_run_running(self) -> bool:
+        """True if there is a current run and it is running, else False."""
+        current_run_id = await self.get_current_run()
+        if current_run_id:
+            get_run_response = await self.robot_client.get_run(run_id=current_run_id)
+            if get_run_response.json()["data"]["status"] in ["running"]:
+                return True
+        return False
+
+    async def stop_run(self, run_id) -> Response:
+        """Stop the run with this run_id"""
+        return await self.robot_client.post_run_action(run_id=run_id, req_body={"data": {"actionType": "stop"}})
+
+    async def un_current_run(self, run_id) -> Response:
+        """Set the current value to False for this run_id"""
+        return await self.robot_client.patch_run(run_id=run_id, req_body={"data": {"current": False}})
+
+    async def force_create_new_run(self) -> str:
+        """Create a new empty run.  Stop the current run if necessary."""
+        run = await self.robot_client.post_run(req_body={"data": {}})
+        await log_response(run)
+        if run.status_code == 409:
+            self.console.print(
+                "There is a 409 conflict when creating the run.  Stopping current run and trying again.",
+                style="bold red",
+            )
+            current_run_id = await self.robot_interactions.get_current_run()
+            stop = await self.stop_run(current_run_id)
+            assert stop.status_code == 201
+            await self.robot_interactions.wait_until_run_status(run_id=current_run_id, expected_status="stopped")
+            run = await self.robot_client.post_run(req_body={"data": {}})
+            await log_response(run)
+        return run.json()["data"]["id"]

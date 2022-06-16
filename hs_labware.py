@@ -6,67 +6,15 @@ from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 from rich.theme import Theme
 
+from commands import load_module_command
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
 from util import is_valid_IPAddress, is_valid_port, log_response, prompt
+from wizard import Wizard
 
 custom_theme = Theme({"info": "dim cyan", "warning": "magenta", "danger": "bold red"})
 
 console = Console(theme=custom_theme)
-
-
-def validate_ip(ip: Optional[str] = None) -> str:
-    if ip == "" or ip is None:
-        ip = Prompt.ask(
-            "Greetings what is [i]your[/i] [bold red]robot ip address[/] (like 192.168.50.89) ? ",
-            default="192.168.50.89",
-            show_default=False,
-        )
-    elif not is_valid_IPAddress(ip):
-        ip = Prompt.ask(
-            f"ip address [bold red]{ip}[/] is not valid, try again (like 192.168.50.89)",
-            default="192.168.50.89",
-            show_default=False,
-        )
-    if is_valid_IPAddress(ip):
-        console.print(
-            Panel(
-                f"Great, that checks out as a valid ip, robot ip set to [bold green]{ip}[/]",
-                style="bold magenta",
-            )
-        )
-        return ip
-    else:
-        validate_ip(ip)
-
-
-def validate_port(port: Optional[int | str] = None) -> str:
-    if port == "" or port is None:
-        port = Prompt.ask(
-            "Greetings what is [i]your[/i] [bold red]robot port[/] (most likely it is 31950 and you can just hit"
-            " enter) ?",
-            console=console,
-            default="31950",
-            show_default=False,
-        )
-    elif not is_valid_port(port):
-        port = Prompt.ask(
-            f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just hit"
-            " enter) ",
-            console=console,
-            default="31950",
-            show_default=False,
-        )
-    if is_valid_port(port):
-        console.print(
-            Panel(
-                f"Great, that checks out as a valid port, robot port set to [bold green]{port}[/]",
-                style="bold magenta",
-            )
-        )
-        return port
-    else:
-        validate_port(port)
 
 
 async def app():
@@ -76,12 +24,12 @@ async def app():
             style="bold magenta",
         )
     )
-    ip = validate_ip()
-    port = validate_port()
-    async with RobotClient.make(host=f"http://{ip}", port=port, version="*") as robot_client:
+    wizard = Wizard(console)
+    robot_ip = wizard.validate_ip()
+    robot_port = wizard.validate_port()
+    async with RobotClient.make(host=f"http://{robot_ip}", port=robot_port, version="*") as robot_client:
         try:
             console.print("Let us make sure your robot is reachable.")
-            await robot_client.wait_until_alive()
             health = await robot_client.get_health()
             console.print(f"Robot is reachable. Here is the {health.request.url} response")
             console.print(health.json())
@@ -171,6 +119,38 @@ opentrons_96_tiprack_1000ul
                 "opentrons_flat_plate_adapter_corning_384_wellplate_112ul_flat",
             ]
             labware = Prompt.ask("Which labware are you testing?", choices=hs_labware)
+            run_id = await ri.force_create_new_run()
+            await ri.execute_command(
+                run_id=run_id,
+                req_body=load_module_command(model="heaterShakerModuleV1", slot_name=hs_slot, module_id=hs_id),
+                print_command=False,
+            )
+            load_labware_command = {
+                "data": {
+                    "commandType": "loadLabware",
+                    "params": {
+                        "location": {"moduleId": hs_id},
+                        "loadName": labware,
+                        "namespace": "opentrons",
+                        "version": 1,
+                        "labwareId": "target",
+                    },
+                }
+            }
+            await ri.execute_command(run_id=run_id, req_body=load_labware_command, print_command=False)
+
+            load_pipette_command = {
+                "data": {
+                    "commandType": "loadPipette",
+                    "params": {
+                        "pipetteName": pipette,
+                        "mount": pipette_mount,
+                        "pipetteId": "pipette",
+                    },
+                }
+            }
+            await ri.execute_command(run_id=run_id, req_body=load_pipette_command, print_command=False)
+            ########################
             console.print(
                 Panel(
                     f"""
@@ -184,47 +164,6 @@ Clear the rest of the deck so there are no collisions.
                     style="bold magenta",
                 )
             )
-            run = await robot_client.post_run(req_body={"data": {}})
-            await log_response(run)
-            run_id = run.json()["data"]["id"]
-            load_module_command = {
-                "data": {
-                    "commandType": "loadModule",
-                    "params": {
-                        "model": "heaterShakerModuleV1",
-                        "location": {"slotName": hs_slot},
-                        "moduleId": hs_id,
-                    },
-                }
-            }
-            await ri.execute_command(run_id=run_id, req_body=load_module_command)
-
-            load_labware_command = {
-                "data": {
-                    "commandType": "loadLabware",
-                    "params": {
-                        "location": {"moduleId": hs_id},
-                        "loadName": labware,
-                        "namespace": "opentrons",
-                        "version": 1,
-                        "labwareId": "target",
-                    },
-                }
-            }
-            await ri.execute_command(run_id=run_id, req_body=load_labware_command)
-
-            load_pipette_command = {
-                "data": {
-                    "commandType": "loadPipette",
-                    "params": {
-                        "pipetteName": pipette,
-                        "mount": pipette_mount,
-                        "pipetteId": "pipette",
-                    },
-                }
-            }
-            await ri.execute_command(run_id=run_id, req_body=load_pipette_command)
-            ########################
             if use_tiprack:
                 load_tiprack_command = {
                     "data": {
@@ -238,7 +177,7 @@ Clear the rest of the deck so there are no collisions.
                         },
                     }
                 }
-                await ri.execute_command(run_id=run_id, req_body=load_tiprack_command)
+                await ri.execute_command(run_id=run_id, req_body=load_tiprack_command, print_command=False)
 
                 pickup_tip_command = {
                     "data": {
@@ -252,7 +191,7 @@ Clear the rest of the deck so there are no collisions.
                 }
                 await prompt("When you are ready to pick up the tip hit enter.")
                 console.print("Picking up tip.")
-                await ri.execute_command(run_id=run_id, req_body=pickup_tip_command)
+                await ri.execute_command(run_id=run_id, req_body=pickup_tip_command, print_command=False)
             #########################
             await prompt("When you are ready to move to pipette to the Heater Shaker press enter.")
             mapping: Dict[str, List[str]] = {
@@ -297,7 +236,7 @@ Clear the rest of the deck so there are no collisions.
                         },
                     }
                 }
-                await ri.execute_command(run_id=run_id, req_body=move_to_well_command)
+                await ri.execute_command(run_id=run_id, req_body=move_to_well_command, print_command=False)
                 await prompt(f"At well {well} press Enter to move to the next well.")
             if use_tiprack:
                 drop_tip_command = {
@@ -310,10 +249,10 @@ Clear the rest of the deck so there are no collisions.
                         },
                     }
                 }
-                await prompt("When you are ready to drop the tip hit enter")
+                await prompt("When you are ready to drop the tip hit enter.")
                 print("Dropping tip.")
-                await ri.execute_command(run_id=run_id, req_body=drop_tip_command)
-            await prompt("When you are ready to home hit enter")
+                await ri.execute_command(run_id=run_id, req_body=drop_tip_command, print_command=False)
+            await prompt("When you are ready to home hit enter.")
             home_command = {
                 "data": {
                     "commandType": "home",
@@ -321,7 +260,7 @@ Clear the rest of the deck so there are no collisions.
                 }
             }
             console.print("Homing.", style="info")
-            await ri.execute_command(run_id=run_id, req_body=home_command)
+            await ri.execute_command(run_id=run_id, req_body=home_command, print_command=False)
         except Exception:
             console.print_exception()
 
