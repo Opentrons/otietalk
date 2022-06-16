@@ -598,9 +598,8 @@ async def test_decrease_temp_while_heating(robot_client: RobotClient, console: C
     assert temp.json()["data"]["status"] == "succeeded"
 
     wait = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=wait_for_temp_command(hs_id=hs_run.hs_id, celsius=celsius), timeout_sec=180
+        run_id=hs_run.run_id, req_body=wait_for_temp_command(hs_id=hs_run.hs_id, celsius=celsius), timeout_sec=300
     )
-    # TODO the above request times out?  Seems by feel the temp was reached?
     assert wait.status_code == 201
     assert wait.json()["data"]["status"] == "succeeded"
 

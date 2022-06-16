@@ -37,7 +37,8 @@
         "ms-python.black-formatter",
         "ms-python.isort",
         "ms-vscode.makefile-tools",
-        "yzhang.markdown-all-in-one"
+        "yzhang.markdown-all-in-one",
+        "eamodio.gitlens"
     ],
     "postCreateCommand": "pip install --user -U pip pipenv && make setup",
     "remoteUser": "vscode",
