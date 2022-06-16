@@ -62,6 +62,14 @@
   - `pipenv run python hs_labware.py`
 - Follow the prompts
 
+## Temperature Module V2 Labware
+
+> From a terminal in the root directory of the repository
+
+- Run the wizard
+  - `pipenv run python td_labware.py`
+- Follow the prompts
+
 ### Pretty print into a log file
 
 go into the file `rich_it.py`
