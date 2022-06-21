@@ -1,3 +1,7 @@
+# TODO(mm, 2022-06-21): Port this to a fully automated G-code snapshot test
+# once we figure out how to get JSONv6 and PAPIv3 protocols running in the
+# g-code-testing project.
+
 import asyncio
 import textwrap
 
