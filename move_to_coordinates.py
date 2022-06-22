@@ -85,7 +85,9 @@ async def main(robot_ip: str, robot_port: str) -> None:
                 x=CROSS_X + 30,
                 y=CROSS_Y,
                 z=CROSS_Z,
-                minimum_z_height=130,  # Tallest Opentrons tip rack is ~100 mm.
+                # Should arc a bit higher than the default.
+                # Tallest Opentrons tip rack is ~100 mm.
+                minimum_z_height=130,
             ),
             commands.move_to_coordinates_command(
                 pipette_id="pipette",
