@@ -100,7 +100,7 @@ class RobotInteractions:
 
         async def _get_and_log_run(run_id: str) -> None:
             response = await self.robot_client.get_run(run_id)
-            log_response(response, True)
+            await log_response(response, True)
 
         async with create_task_group() as tg:
             for run_id in random_runs:
