@@ -154,6 +154,24 @@ def pick_up_tip_command(
     }
 
 
+def drop_tip_command(
+    pipette_id: str,
+    labware_id: str,
+    well_name: str,
+    # TODO: Add wellLocation parameter.
+):
+    return {
+        "data": {
+            "commandType": "dropTip",
+            "params": {
+                "pipetteId": pipette_id,
+                "labwareId": labware_id,
+                "wellName": well_name,
+            },
+        }
+    }
+
+
 def move_to_coordinates_command(
     pipette_id: str,
     x: float,
@@ -181,3 +199,7 @@ def move_to_coordinates_command(
         body["data"]["params"]["forceDirect"] = force_direct
 
     return body
+
+
+def home_command():  # TODO: Add axes parameter.
+    return {"data": {"commandType": "home", "params": {}}}

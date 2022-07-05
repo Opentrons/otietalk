@@ -50,6 +50,7 @@ async def main(robot_ip: str, robot_port: str) -> None:
                 labware_id="tip_rack",
             ),
             commands.load_pipette_command(pipette_name=PIPETTE, mount=MOUNT, pipette_id="pipette"),
+            commands.home_command(),
             commands.move_to_coordinates_command(
                 pipette_id="pipette",
                 x=CROSS_X,
@@ -96,6 +97,15 @@ async def main(robot_ip: str, robot_port: str) -> None:
                 z=CROSS_Z,
                 force_direct=True,
             ),
+            # This drop-tip serves two purposes:
+            # 1. It returns the tip, for convenience.
+            # 2. It tests that the robot correctly plans an arc when it moves from
+            #    a coordinate location to a well location. This specific case of
+            #    returning to the last well location before the moveToCoordinates
+            #    is especially important to test because one possible bug is that
+            #    the robot still thinks it's in the same well and moves directly instead
+            #    of moving in an arc.
+            commands.drop_tip_command(pipette_id="pipette", labware_id="tip_rack", well_name="A1"),
         ]
 
         for command in commands_to_run:
