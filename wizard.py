@@ -75,12 +75,13 @@ class Wizard:
         """Reset the log file."""
         response = Confirm.ask(f"Would you like to reset the log file {LOG_FILE_PATH}?")
         if response:
-            os.remove(LOG_FILE_PATH)
-            self.console.print(
-                Panel(
-                    f"Removed log file {LOG_FILE_PATH}",
-                    style="bold magenta",
+            if os.path.exists(LOG_FILE_PATH):
+                os.remove(LOG_FILE_PATH)
+                self.console.print(
+                    Panel(
+                        f"Removed log file {LOG_FILE_PATH}",
+                        style="bold magenta",
+                    )
                 )
-            )
             return True
         return False
