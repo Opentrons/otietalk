@@ -25,12 +25,15 @@ async def stuff(robot_ip: str, robot_port: str) -> None:
         # The list comprehension for the below overwhelmed me.
         # It is more readable in two parts.
         # get all the lists of labware offsets
+        # must have empty [] check
         labware_offsets_groups = [run["labwareOffsets"] for run in runs if run["labwareOffsets"] != []]
         offsets = []
         # make a list of just the offset objects
         for group in labware_offsets_groups:
             for offset in group:
-                offsets.append(offset)
+                # empty check but I don't think these are ever []
+                if offset != []:
+                    offsets.append(offset)
         console.print(offsets)
         with open("offsets.json", "w") as outfile:
             json.dump(offsets, outfile)

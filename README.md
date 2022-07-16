@@ -83,6 +83,8 @@ Labware that may be used:
 - console
 - file in JSON format (by default `offsets.json`)
 
+![Example of get_offsets](./media/get_offsets.gif)
+
 > From a terminal in the root directory of the repository
 
 - Run the wizard
