@@ -76,6 +76,19 @@ Labware that may be used:
   - `pipenv run python td_labware.py`
 - Follow the prompts
 
+## Get all offsets used in runs on a robot
+
+> This tool retrieves the /runs data from a robot then constructs a list of the offset objects and outputs them to
+
+- console
+- file in JSON format (by default `offsets.json`)
+
+> From a terminal in the root directory of the repository
+
+- Run the wizard
+  - `pipenv run python get_offsets.py`
+- Follow the prompts
+
 ### Pretty print into a log file
 
 go into the file `rich_it.py`
