@@ -43,6 +43,8 @@ def is_valid_IPAddress(sample_str):
     """Returns True if given string is a
     valid IP Address, else returns False"""
     result = True
+    if sample_str in ["host.docker.internal", "localhost"]:
+        return result
     try:
         ipaddress.ip_network(sample_str)
     except:

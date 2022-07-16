@@ -124,7 +124,7 @@ if __name__ == "__main__":
         Please load:
 
         * A {PIPETTE} on the {MOUNT} mount.
-        * A {TIP_RACK} in slot {TIP_RACK}.
+        * A {TIP_RACK} in slot {TIP_RACK_SLOT}.
 
         The pipette should make the following movements:
 

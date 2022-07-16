@@ -6,8 +6,8 @@ from rich.theme import Theme
 
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
-from wizard import Wizard
 from util import log_response
+from wizard import Wizard
 
 
 async def stuff(robot_ip: str, robot_port: str) -> None:
@@ -15,7 +15,7 @@ async def stuff(robot_ip: str, robot_port: str) -> None:
     async with RobotClient.make(host=f"http://{robot_ip}", port=robot_port, version="*") as robot_client:
         robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
         resp = await robot_client.get_runs()
-        await log_response(resp,True,console)
+        await log_response(resp, True, console)
 
 
 if __name__ == "__main__":
