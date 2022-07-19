@@ -27,15 +27,13 @@ class RobotInteractions:
         print_command: bool = True,
     ) -> Response:
         """Post a command to a run waiting until complete then log the response."""
-
-        if print_command:
-            self.console.print()
-            self.console.print(
-                Panel(
+        panel = Panel(
                     f"[bold green]Sending Command[/]",
                     style="bold magenta",
                 )
-            )
+        if print_command:
+            self.console.print()
+            self.console.print(panel)
             self.console.print(req_body)
         if timeout_sec != 60.0:
             params = {"waitUntilComplete": True, "timeout": int(timeout_sec) * 1000}
@@ -159,10 +157,10 @@ class RobotInteractions:
                 "There is a 409 conflict when creating the run.  Stopping current run and trying again.",
                 style="bold red",
             )
-            current_run_id = await self.robot_interactions.get_current_run()
+            current_run_id = await self.get_current_run()
             stop = await self.stop_run(current_run_id)
             assert stop.status_code == 201
-            await self.robot_interactions.wait_until_run_status(run_id=current_run_id, expected_status="stopped")
+            await self.wait_until_run_status(run_id=current_run_id, expected_status="stopped")
             run = await self.robot_client.post_run(req_body={"data": {}})
             await log_response(run)
         return run.json()["data"]["id"]
