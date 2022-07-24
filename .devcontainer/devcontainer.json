@@ -8,12 +8,9 @@
             "NODE_VERSION": "16.13.1"
         }
     },
-    "containerEnv": {
-        "PIPENV_VENV_IN_PROJECT": "true"
-    },
     "mounts": [
-        "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,type=bind",
-        "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind",
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind",
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind",
         "source=commandhistory,target=/commandhistory,type=volume",
         "source=extensions,target=/home/vscode/.vscode-server/extensions,type=volume",
         "source=pipcache,target=/home/vscode/.cache,type=volume",
@@ -34,8 +31,6 @@
         "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
         "bierner.markdown-mermaid",
         "redhat.vscode-yaml",
-        "ms-python.black-formatter",
-        "ms-python.isort",
         "ms-vscode.makefile-tools",
         "yzhang.markdown-all-in-one",
         "eamodio.gitlens"
