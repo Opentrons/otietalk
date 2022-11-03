@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from typing import Any, Dict, cast
+from unittest import skip
 
 import anyio
 import pytest
@@ -23,8 +24,10 @@ from robot_interactions import RobotInteractions
 from util import log_response
 
 HS_SLOT = "1"
-HS_SHAKE_SPEED_RANGE = 20
+HS_SHAKE_SPEED_RANGE = 40
 HS_TEMP_RANGE = 2
+VALID_HEAT_TARGET = 38
+VALID_HEAT_TARGET_PLUS_2 = 40
 
 
 def shake_speed_in_range(actual: float, target: float, range: float = HS_SHAKE_SPEED_RANGE) -> bool:
@@ -114,7 +117,7 @@ async def test_shake_happy_path(robot_client: RobotClient, console: Console) -> 
     assert shake_speed_in_range(hs_module_data["data"]["currentSpeed"], rpm)
     assert hs_module_data["data"]["speedStatus"] == "holding at target"
 
-    await asyncio.sleep(5) #see with eyeballs the shake
+    await asyncio.sleep(5)  # see with eyeballs the shake
     # stop the shaking
     stop_shake = await robot_interactions.execute_command(
         run_id=hs_run.run_id, req_body=stop_shake_command(hs_id=hs_run.hs_id)
@@ -185,7 +188,7 @@ async def test_heat_and_shake_happy_path(robot_client: RobotClient, console: Con
     assert hs_module_data["data"]["speedStatus"] == "holding at target"
 
     # try to heat
-    celsius: float = 60
+    celsius: float = VALID_HEAT_TARGET
     temp = await robot_interactions.execute_command(
         run_id=hs_run.run_id, req_body=set_target_temp_command(hs_id=hs_run.hs_id, celsius=celsius)
     )
@@ -229,8 +232,9 @@ async def test_shake_blocked_by_open_latch(robot_client: RobotClient, console: C
     )
     console.print(shake.json())
     assert shake.json()["data"]["status"] == "failed"
-    assert shake.json()["data"]["error"]["detail"] == "Heater-Shaker can't start shaking while the labware latch is open."
-
+    assert (
+        shake.json()["data"]["error"]["detail"] == "Heater-Shaker cannot start shaking while the labware latch is open."
+    )
 
 
 @pytest.mark.asyncio
@@ -263,7 +267,10 @@ async def test_open_latch_while_shaking(robot_client: RobotClient, console: Cons
     )
     console.print(open_latch.json())
     assert open_latch.json()["data"]["status"] == "failed"
-    assert open_latch.json()["data"]["error"]["detail"] == "Heater-Shaker can't open its labware latch while it is shaking."
+    assert (
+        open_latch.json()["data"]["error"]["detail"]
+        == "Heater-Shaker cannot open its labware latch while it is shaking."
+    )
 
 
 @pytest.mark.asyncio
@@ -425,7 +432,7 @@ async def test_invalid_shake_speed(robot_client: RobotClient, console: Console, 
     assert shake.json()["data"]["error"]["errorType"] == "InvalidTargetSpeedError"
     assert (
         shake.json()["data"]["error"]["detail"]
-        == f"Heater-Shaker got invalid speed of {rpm}RPM. Valid range is SpeedRange(min=200, max=3000)."
+        == f"Cannot set Heater-Shaker to shake at {rpm} rpm. Valid speed range is SpeedRange(min=200, max=3000) rpm."
     )
 
 
@@ -433,7 +440,7 @@ async def test_invalid_shake_speed(robot_client: RobotClient, console: Console, 
     "rpm",
     [
         (200.0),
-        (3000.0),
+        # (3000.0),
     ],
 )
 @pytest.mark.asyncio
@@ -491,7 +498,7 @@ async def test_out_of_range_temp(robot_client: RobotClient, console: Console, ce
     assert temp.json()["data"]["error"]["errorType"] == "InvalidTargetTemperatureError"
     assert (
         temp.json()["data"]["error"]["detail"]
-        == f"Heater-Shaker got an invalid temperature {celsius} degree Celsius. Valid range is TemperatureRange(min=37, max=95)."
+        == f"Cannot set Heater-Shaker to {celsius} °C. Valid range is TemperatureRange(min=37, max=95) °C."
     )
 
     # is temp state idle?
@@ -511,7 +518,7 @@ async def test_increase_temp_while_heating(robot_client: RobotClient, console: C
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
     # try to heat
-    celsius: float = 40
+    celsius: float = VALID_HEAT_TARGET
     temp = await robot_interactions.execute_command(
         run_id=hs_run.run_id, req_body=set_target_temp_command(hs_id=hs_run.hs_id, celsius=celsius)
     )
@@ -519,7 +526,7 @@ async def test_increase_temp_while_heating(robot_client: RobotClient, console: C
     assert temp.json()["data"]["status"] == "succeeded"
 
     # try to heat to a new higher temp
-    celsius: float = 50
+    celsius: float = VALID_HEAT_TARGET_PLUS_2
     temp = await robot_interactions.execute_command(
         run_id=hs_run.run_id, req_body=set_target_temp_command(hs_id=hs_run.hs_id, celsius=celsius)
     )
@@ -578,46 +585,10 @@ async def test_decrease_temp_while_heating(robot_client: RobotClient, console: C
     assert hs_module_data["data"]["temperatureStatus"] == "holding at target"
     assert temp_in_range(hs_module_data["data"]["currentTemperature"], celsius)
 
-# at the end, takes the longest.
-@pytest.mark.parametrize(
-    "celsius",
-    [
-        (37.0),
-        (95.0),
-    ],
-)
-@pytest.mark.asyncio
-async def test_boundary_temp(robot_client: RobotClient, console: Console, celsius: float) -> None:
-    """Setting temperature to boundary is valid."""
-    robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
-    # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
-
-    await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
-
-    # try to heat
-    temp = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=set_target_temp_command(hs_id=hs_run.hs_id, celsius=celsius)
-    )
-    assert temp.status_code == 201
-    assert temp.json()["data"]["status"] == "succeeded"
-
-    wait = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=wait_for_temp_command(hs_id=hs_run.hs_id, celsius=celsius), timeout_sec=300
-    )
-    assert wait.status_code == 201
-    assert wait.json()["data"]["status"] == "succeeded"
-
-    # is temp at desired state?
-    hs_module_data = await robot_interactions.get_module_data_by_id(hs_run.hs_id)
-    assert hs_module_data["data"]["temperatureStatus"] == "holding at target"
-    assert temp_in_range(hs_module_data["data"]["currentTemperature"], celsius)
 
 @pytest.mark.parametrize(
     "target_rpm",
-    [(199.99),(3000.1)],
+    [(199.99), (3000.1)],
 )
 @pytest.mark.asyncio
 async def test_shake_rate_invalid_while_shaking(robot_client: RobotClient, console: Console, target_rpm: float) -> None:
@@ -652,7 +623,7 @@ async def test_shake_rate_invalid_while_shaking(robot_client: RobotClient, conso
     assert shake.json()["data"]["error"]["errorType"] == "InvalidTargetSpeedError"
     assert (
         shake.json()["data"]["error"]["detail"]
-        == f"Heater-Shaker got invalid speed of {target_rpm}RPM. Valid range is SpeedRange(min=200, max=3000)."
+        == f"Cannot set Heater-Shaker to shake at {target_rpm} rpm. Valid speed range is SpeedRange(min=200, max=3000) rpm."
     )
 
     # is shaking at desired rpm? - just like above
@@ -663,9 +634,10 @@ async def test_shake_rate_invalid_while_shaking(robot_client: RobotClient, conso
     # intentionally no teardown.  We do setup, not teardown.
     # HS should be shaking at 555 rpm
 
+
 @pytest.mark.parametrize(
     "celsius_target",
-    [(36.99),(96.1)],
+    [(36.99), (96.1)],
 )
 @pytest.mark.asyncio
 async def test_invalid_temp_while_heating(robot_client: RobotClient, console: Console, celsius_target: float) -> None:
@@ -686,7 +658,6 @@ async def test_invalid_temp_while_heating(robot_client: RobotClient, console: Co
     assert temp.status_code == 201
     assert temp.json()["data"]["status"] == "succeeded"
 
-
     temp = await robot_interactions.execute_command(
         run_id=hs_run.run_id, req_body=set_target_temp_command(hs_id=hs_run.hs_id, celsius=celsius_target)
     )
@@ -695,7 +666,7 @@ async def test_invalid_temp_while_heating(robot_client: RobotClient, console: Co
     assert temp.json()["data"]["error"]["errorType"] == "InvalidTargetTemperatureError"
     assert (
         temp.json()["data"]["error"]["detail"]
-        == f"Heater-Shaker got an invalid temperature {celsius_target} degree Celsius. Valid range is TemperatureRange(min=37, max=95)."
+        == f"Cannot set Heater-Shaker to {celsius_target} °C. Valid range is TemperatureRange(min=37, max=95) °C."
     )
 
     wait = await robot_interactions.execute_command(
@@ -708,3 +679,48 @@ async def test_invalid_temp_while_heating(robot_client: RobotClient, console: Co
     hs_module_data = await robot_interactions.get_module_data_by_id(hs_run.hs_id)
     assert hs_module_data["data"]["temperatureStatus"] == "holding at target"
     assert temp_in_range(hs_module_data["data"]["currentTemperature"], celsius)
+
+
+# at the end, takes the longest.
+@pytest.mark.parametrize(
+    "celsius",
+    [
+        (37.0),
+        # (95.0),
+    ],
+)
+@pytest.mark.asyncio
+async def test_boundary_temp(robot_client: RobotClient, console: Console, celsius: float) -> None:
+    """Setting temperature to boundary is valid."""
+    robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
+    # create a new run and load the HS module into that run
+    hs_run: HSTestRun = await HSTestRun.create(
+        robot_client=robot_client, robot_interactions=robot_interactions, console=console
+    )
+
+    await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
+
+    # try to heat
+    temp = await robot_interactions.execute_command(
+        run_id=hs_run.run_id, req_body=set_target_temp_command(hs_id=hs_run.hs_id, celsius=celsius)
+    )
+    assert temp.status_code == 201
+    assert temp.json()["data"]["status"] == "succeeded"
+
+    wait = await robot_interactions.execute_command(
+        run_id=hs_run.run_id, req_body=wait_for_temp_command(hs_id=hs_run.hs_id, celsius=celsius), timeout_sec=300
+    )
+    assert wait.status_code == 201
+    assert wait.json()["data"]["status"] == "succeeded"
+
+    # is temp at desired state?
+    hs_module_data = await robot_interactions.get_module_data_by_id(hs_run.hs_id)
+    assert hs_module_data["data"]["temperatureStatus"] == "holding at target"
+    assert temp_in_range(hs_module_data["data"]["currentTemperature"], celsius)
+
+@pytest.mark.asyncio
+async def test_hmm(robot_client: RobotClient, console: Console) -> None:
+    robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
+    for _ in range(1):
+        await robot_interactions.hmm()
+

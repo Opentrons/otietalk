@@ -203,3 +203,88 @@ def move_to_coordinates_command(
 
 def home_command():  # TODO: Add axes parameter.
     return {"data": {"commandType": "home", "params": {}}}
+
+
+def open_lid(tc_id: str):
+    return {
+        "data": {
+            "commandType": "thermocycler/openLid",
+            "params": {
+                "moduleId": tc_id,
+            },
+        }
+    }
+
+
+def close_lid(tc_id: str):
+    return {
+        "data": {
+            "commandType": "thermocycler/closeLid",
+            "params": {
+                "moduleId": tc_id,
+            },
+        }
+    }
+
+def set_lid_temp(tc_id: str, celsius: float):
+    return {
+        "data": {
+            "commandType": "thermocycler/setTargetLidTemperature",
+            "params": {
+                "moduleId": tc_id,
+                "celsius" : celsius,
+            },
+        }
+    }
+
+def wait_lid_temp(tc_id: str):
+    return {
+        "data": {
+            "commandType": "thermocycler/waitForLidTemperature",
+            "params": {
+                "moduleId": tc_id,
+            },
+        }
+    }
+
+def set_block_temp(tc_id: str, celsius: float, block_max_volume_ul: float):
+    return {
+        "data": {
+            "commandType": "thermocycler/setTargetBlockTemperature",
+            "params": {
+                "moduleId": tc_id,
+                "celsius" : celsius,
+                "blockMaxVolumeUl" : block_max_volume_ul,
+            },
+        }
+    }
+
+def wait_block_temp(tc_id: str):
+    return {
+        "data": {
+            "commandType": "thermocycler/waitForBlockTemperature",
+            "params": {
+                "moduleId": tc_id,
+            },
+        }
+    }
+
+def deactivate_block(tc_id: str):
+    return {
+        "data": {
+            "commandType": "thermocycler/deactivateBlock",
+            "params": {
+                "moduleId": tc_id,
+            },
+        }
+    }
+
+def deactivate_lid(tc_id: str):
+    return {
+        "data": {
+            "commandType": "thermocycler/deactivateLid",
+            "params": {
+                "moduleId": tc_id,
+            },
+        }
+    }

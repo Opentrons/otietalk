@@ -19,6 +19,15 @@ class Wizard:
             self.console = Console()
 
     def validate_ip(self, ip: Optional[str] = None) -> str:
+        """Recursive method to prompt the user to input or confirm robot ip address."""
+        env_robot_ip = os.getenv("ROBOT_IP")
+        if env_robot_ip:
+            ip = Prompt.ask(
+                f"The [i]ROBOT_IP[/i] [bold red] environment variable is set and valid.[/] {env_robot_ip} Hit enter to use it.",
+                console=self.console,
+                default=env_robot_ip,
+                show_default=False,
+            )
         if ip == "" or ip is None:
             ip = Prompt.ask(
                 "What is [i]your[/i] [bold red]robot ip address[/] (like 192.168.50.89) ? ",
@@ -41,8 +50,7 @@ class Wizard:
                 )
             )
             return ip
-        else:
-            self.validate_ip(ip)
+        self.validate_ip(ip)
 
     def validate_port(self, port: Optional[int | str] = None) -> str:
         if port == "" or port is None:

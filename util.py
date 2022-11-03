@@ -18,21 +18,21 @@ async def prompt(message: str) -> str:
     return await to_thread.run_sync(_prompt)
 
 
-async def log_response(response: Response, print_timing: bool = False, console: Console = Console()) - None:
+async def log_response(response: Response, print_timing: bool = False, console: Console = Console()) -> None:
     """Log the response status, url, timing, and json response."""
     endpoint = f"\nstatus_code = {response.status_code}\n{response.request.method} {response.url}"  # noqa: E501
     formatted_response_body = json.dumps(response.json(), indent=4)
     formatted_request_body = ""
     try:
         if response.request.read():
-            req_body = json.loads(response.request.read().decode('utf8').replace("'", '"'))
+            req_body = json.loads(response.request.read().decode("utf8").replace("'", '"'))
             formatted_request_body = json.dumps(req_body, indent=4)
     except:
         console.print_exception()
 
     elapsed = response.elapsed.total_seconds()
     elapsed_output = str(elapsed)
-    if elapsed  > 1:
+    if elapsed > 1:
         elapsed_output = f"{str(elapsed)} *LONG*"
     if print_timing:
         console.print(endpoint)

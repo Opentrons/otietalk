@@ -157,21 +157,18 @@ class RobotClient:
 
     async def post_run(self, req_body: Dict[str, object]) -> Response:
         """POST /runs."""
-        response = await self.httpx_client.post(url=f"{self.base_url}/runs", json=req_body)
+        response = await self.httpx_client.post(url=f"{self.base_url}/runs", json=req_body, timeout=15)
         return response
 
     async def patch_run(self, run_id: str, req_body: Dict[str, object]) -> Response:
         """POST /runs."""
-        response = await self.httpx_client.patch(
-            url=f"{self.base_url}/runs/{run_id}",
-            json=req_body,
-        )
+        response = await self.httpx_client.patch(url=f"{self.base_url}/runs/{run_id}", json=req_body, timeout=15)
         response.raise_for_status()
         return response
 
     async def get_run(self, run_id: str) -> Response:
         """GET /runs/:run_id."""
-        response = await self.httpx_client.get(url=f"{self.base_url}/runs/{run_id}")
+        response = await self.httpx_client.get(url=f"{self.base_url}/runs/{run_id}", timeout=15)
         response.raise_for_status()
         return response
 
@@ -225,10 +222,7 @@ class RobotClient:
         req_body: Dict[str, object],
     ) -> Response:
         """POST /runs/:run_id/commands."""
-        response = await self.httpx_client.post(
-            url=f"{self.base_url}/runs/{run_id}/actions",
-            json=req_body,
-        )
+        response = await self.httpx_client.post(url=f"{self.base_url}/runs/{run_id}/actions", json=req_body, timeout=15)
         response.raise_for_status()
         return response
 
@@ -240,7 +234,7 @@ class RobotClient:
 
     async def delete_run(self, run_id: str) -> Response:
         """DELETE /runs/{run_id}."""
-        response = await self.httpx_client.delete(f"{self.base_url}/runs/{run_id}")
+        response = await self.httpx_client.delete(f"{self.base_url}/runs/{run_id}", timeout=15)
         response.raise_for_status()
         return response
 
@@ -258,7 +252,7 @@ class RobotClient:
 
     async def get_modules(self) -> Response:
         """GET /modules."""
-        response = await self.httpx_client.get(url=f"{self.base_url}/modules")
+        response = await self.httpx_client.get(url=f"{self.base_url}/modules", timeout=15)
         response.raise_for_status()
         return response
 

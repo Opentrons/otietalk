@@ -1,7 +1,10 @@
+import asyncio
 import random
+import time
 from typing import Any, Dict, List, Optional, cast
 
 import anyio
+import httpx
 from anyio import create_task_group
 from httpcore import Response
 from rich.console import Console
@@ -9,6 +12,29 @@ from rich.panel import Panel
 
 from robot_client import RobotClient
 from util import log_response
+
+
+def timeit(func):
+    async def process(func, *args, **params):
+        if asyncio.iscoroutinefunction(func):
+            print("this function is a coroutine: {}".format(func.__name__))
+            return await func(*args, **params)
+        else:
+            print("this is not a coroutine")
+            return func(*args, **params)
+
+    async def helper(*args, **params):
+        print("{}.time".format(func.__name__))
+        start = time.time()
+        result = await process(func, *args, **params)
+
+        # Test normal function route...
+        # result = await process(lambda *a, **p: print(*a, **p), *args, **params)
+
+        print("This function took ", time.time() - start)
+        return result
+
+    return helper
 
 
 class RobotInteractions:
@@ -28,9 +54,9 @@ class RobotInteractions:
     ) -> Response:
         """Post a command to a run waiting until complete then log the response."""
         panel = Panel(
-                    f"[bold green]Sending Command[/]",
-                    style="bold magenta",
-                )
+            f"[bold green]Sending Command[/]",
+            style="bold magenta",
+        )
         if print_command:
             self.console.print()
             self.console.print(panel)
@@ -87,7 +113,7 @@ class RobotInteractions:
             raise ValueError(
                 f"You have multiples of a module {module_model} attached and that is not supported."  # noqa: E501
             )
-        elif len(ids) == 0:
+        if len(ids) == 0:
             raise ValueError(f"No module attached to the robot has moduleModel of {module_model}")
         return ids[0]
 
@@ -116,13 +142,17 @@ class RobotInteractions:
     async def get_attached_pipettes(self) -> List[str]:
         pipettes = self.robot_client.get_pipettes()
 
+    @timeit
     async def wait_until_run_status(
         self,
         run_id: str,
         expected_status: str,
+        timeout_sec: int = 15,
     ) -> Dict[str, Any]:
         """Wait until a run achieves the expected status, returning its data."""
-        with anyio.fail_after(15):  # if say a HS is shaking when you say stop it takes some seconds to actually stop
+        with anyio.fail_after(
+            timeout_sec
+        ):  # if say a HS is shaking when you say stop it takes some seconds to actually stop
             get_run_response = await self.robot_client.get_run(run_id=run_id)
 
             while get_run_response.json()["data"]["status"] != expected_status:
@@ -140,27 +170,74 @@ class RobotInteractions:
                 return True
         return False
 
-    async def stop_run(self, run_id) -> Response:
+    async def stop_run(self, run_id) -> Optional[Response]:
         """Stop the run with this run_id"""
-        return await self.robot_client.post_run_action(run_id=run_id, req_body={"data": {"actionType": "stop"}})
-
-    async def un_current_run(self, run_id) -> Response:
-        """Set the current value to False for this run_id"""
-        return await self.robot_client.patch_run(run_id=run_id, req_body={"data": {"current": False}})
-
-    async def force_create_new_run(self) -> str:
-        """Create a new empty run.  Stop the current run if necessary."""
-        run = await self.robot_client.post_run(req_body={"data": {}})
-        await log_response(run)
-        if run.status_code == 409:
+        try:
+            return await self.robot_client.post_run_action(run_id=run_id, req_body={"data": {"actionType": "stop"}})
+        except httpx.ReadTimeout:
             self.console.print(
-                "There is a 409 conflict when creating the run.  Stopping current run and trying again.",
+                f"Stopping run {run_id} timed out....",
                 style="bold red",
             )
+        return None
+
+    async def un_current_run(self, run_id) -> Optional[Response]:
+        """Set the current value to False for this run_id"""
+        try:
+            return await self.robot_client.patch_run(run_id=run_id, req_body={"data": {"current": False}})
+        except httpx.ReadTimeout:
+            self.console.print(
+                f"PATCHing current run {run_id} to current = False timed out....",
+                style="bold red",
+            )
+        return None
+
+    async def force_create_new_run(self) -> str:
+        """Create a new empty run.  Stop the current run and uncurrent if necessary."""
+        run_post_fail = False
+        run = None
+        try:
+            run = await self.robot_client.post_run(req_body={"data": {}})
+            await log_response(run)
+        except httpx.ReadTimeout:
+            self.console.print(
+                "POSTing empty Run timed out....",
+                style="bold red",
+            )
+            run_post_fail = True
+        if run and run.status_code != 201 or run_post_fail:
+            if run:
+                self.console.print(
+                    f"Post Run status code was {run.status_code}",
+                    style="bold red",
+                )
             current_run_id = await self.get_current_run()
-            stop = await self.stop_run(current_run_id)
-            assert stop.status_code == 201
-            await self.wait_until_run_status(run_id=current_run_id, expected_status="stopped")
+            await self.stop_run(current_run_id)
+            stop_timeout_sec = 15
+            await self.wait_until_run_status(
+                run_id=current_run_id, expected_status="stopped", timeout_sec=stop_timeout_sec
+            )
+            run = await self.get_current_run()
+            if run:
+                delete_run = await self.robot_client.delete_run(run)
+                await log_response(delete_run)
+                run = await self.get_current_run()
+                assert run is None
+                await self.un_current_run(run)
             run = await self.robot_client.post_run(req_body={"data": {}})
             await log_response(run)
         return run.json()["data"]["id"]
+
+    async def hmm(self):
+        run = await self.robot_client.post_run(req_body={"data": {}})
+        await log_response(run, print_timing=True)
+        current_run_id = await self.get_current_run(print_timing=True)
+        self.execute_simple_command()
+        stop = await self.stop_run(current_run_id)
+        await log_response(stop, print_timing=True)
+        #await self.wait_until_run_status(run_id=current_run_id, expected_status="stopped", timeout_sec=15)
+        #run = await self.get_current_run(print_timing=True)
+        delete_run = await self.robot_client.delete_run(run)
+        await log_response(delete_run, print_timing=True)
+        run = await self.get_current_run(print_timing=True)
+        assert run is None
