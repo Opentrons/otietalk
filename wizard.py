@@ -62,8 +62,7 @@ class Wizard:
             )
         elif not is_valid_port(port):
             port = Prompt.ask(
-                f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just"
-                " hit enter) ",
+                f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just" " hit enter) ",
                 console=self.console,
                 default="31950",
                 show_default=False,

@@ -1,3 +1,4 @@
+import asyncio
 import ipaddress
 import json
 import sys
@@ -8,6 +9,8 @@ from httpx import Response
 from rich.console import Console
 
 LOG_FILE_PATH = "responses.log"
+
+_console = Console()
 
 
 async def prompt(message: str) -> str:
@@ -76,3 +79,26 @@ def is_valid_port(port: str | int) -> str:
     if 1 <= port <= 65535:
         return True
     return False
+
+
+def timeit(func):
+    async def process(func, *args, **params):
+        if asyncio.iscoroutinefunction(func):
+            _console.print(f"[salmon1]This function is a coroutine.")
+            return await func(*args, **params)
+        else:
+            _console.print("[salmon1]This is not a coroutine.")
+            return func(*args, **params)
+
+    async def helper(*args, **params):
+        _console.print("[bold bright_yellow]----------------------[/bold bright_yellow]")
+        _console.print(f"[bold salmon1]Timing function {func.__name__}")
+        _console.print(f"[bold dark_blue]params {params}[/bold dark_blue]")
+        start = time.time()
+        result = await process(func, *args, **params)
+        _console.print(
+            f"[bold green4]This function took [bold bright_green]{time.time() - start}",
+        )
+        return result
+
+    return helper

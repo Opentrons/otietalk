@@ -1,4 +1,11 @@
-from typing import Optional
+from typing import Dict, List, Optional
+
+from opentrons_shared_data.protocol.dev_types import (
+    ThermocyclerCycle,
+    ThermocyclerRunProfileCommand,
+    ThermocyclerRunProfileCommandId,
+    ThermocyclerRunProfileParams,
+)
 
 
 def load_module_command(model: str, slot_name: str, module_id: str):
@@ -226,16 +233,18 @@ def close_lid(tc_id: str):
         }
     }
 
+
 def set_lid_temp(tc_id: str, celsius: float):
     return {
         "data": {
             "commandType": "thermocycler/setTargetLidTemperature",
             "params": {
                 "moduleId": tc_id,
-                "celsius" : celsius,
+                "celsius": celsius,
             },
         }
     }
+
 
 def wait_lid_temp(tc_id: str):
     return {
@@ -247,17 +256,19 @@ def wait_lid_temp(tc_id: str):
         }
     }
 
+
 def set_block_temp(tc_id: str, celsius: float, block_max_volume_ul: float):
     return {
         "data": {
             "commandType": "thermocycler/setTargetBlockTemperature",
             "params": {
                 "moduleId": tc_id,
-                "celsius" : celsius,
-                "blockMaxVolumeUl" : block_max_volume_ul,
+                "celsius": celsius,
+                "blockMaxVolumeUl": block_max_volume_ul,
             },
         }
     }
+
 
 def wait_block_temp(tc_id: str):
     return {
@@ -269,6 +280,7 @@ def wait_block_temp(tc_id: str):
         }
     }
 
+
 def deactivate_block(tc_id: str):
     return {
         "data": {
@@ -279,6 +291,7 @@ def deactivate_block(tc_id: str):
         }
     }
 
+
 def deactivate_lid(tc_id: str):
     return {
         "data": {
@@ -286,5 +299,25 @@ def deactivate_lid(tc_id: str):
             "params": {
                 "moduleId": tc_id,
             },
+        }
+    }
+
+
+def run_profile(data: ThermocyclerRunProfileCommand):
+    return {"data": data}
+
+
+def run_profile2(tc_id: str, profiles: List[Dict], block_max_volume_ul: Optional[float] = None):
+    if block_max_volume_ul:
+        return {
+            "data": {
+                "commandType": "thermocycler/runProfile",
+                "params": {"moduleId": tc_id, "profile": profiles, "blockMaxVolumeUl": block_max_volume_ul},
+            }
+        }
+    return {
+        "data": {
+            "commandType": "thermocycler/runProfile",
+            "params": {"moduleId": tc_id, "profile": profiles},
         }
     }

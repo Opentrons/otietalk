@@ -1,56 +1,52 @@
 {
-    "name": "Otietalk Container",
+    "name": "otietalk-devcontainer",
     "build": {
-        "dockerfile": "Dockerfile",
-        "context": "..",
-        "args": {
-            "VARIANT": "3.10-bullseye",
-            "NODE_VERSION": "16.13.1"
-        }
+      "dockerfile": "Dockerfile",
+      "args": {
+        "VARIANT": "3.11-bullseye",
+        "USERNAME": "root",
+        "NODE_VERSION": "16"
+      }
     },
+    "remoteUser": "root",
     "mounts": [
-        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind",
-        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind",
-        "source=commandhistory,target=/commandhistory,type=volume",
-        "source=extensions,target=/home/vscode/.vscode-server/extensions,type=volume",
-        "source=pipcache,target=/home/vscode/.cache,type=volume",
-        "source=local,target=/home/vscode/.local,type=volume"
+      "source=commandhistory-otietalk,target=/commandhistory,type=volume",
+      "source=extensions-otietalk,target=/root/.vscode-server/extensions,type=volume",
+      "source=cache-otietalk,target=/root/.cache,type=volume",
+      "source=local-otietalk,target=/root/.local,type=volume"
     ],
+    "runArgs": ["--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
     "settings": {
-        "python.linting.enabled": true,
-        "python.formatting.provider": "black"
+      "python.linting.enabled": true,
+      "python.formatting.provider": "black",
+      "python.terminal.activateEnvironment": false
     },
     "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "editorconfig.editorconfig",
-        "streetsidesoftware.code-spell-checker",
-        "humao.rest-client",
-        "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
-        "bierner.markdown-mermaid",
-        "redhat.vscode-yaml",
-        "ms-vscode.makefile-tools",
-        "yzhang.markdown-all-in-one",
-        "eamodio.gitlens"
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "editorconfig.editorconfig",
+      "streetsidesoftware.code-spell-checker",
+      "humao.rest-client",
+      "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
+      "bierner.markdown-mermaid",
+      "redhat.vscode-yaml",
+      "ms-vscode.makefile-tools",
+      "yzhang.markdown-all-in-one",
+      "eamodio.gitlens",
+      "mutantdino.resourcemonitor"
     ],
-    "postCreateCommand": "pip install --user -U pip pipenv && make setup",
-    "remoteUser": "vscode",
+    "postCreateCommand": "",
     "features": {
-        "common": {
-            "username": "automatic",
-            "uid": "automatic",
-            "gid": "automatic",
-            "installZsh": true,
-            "installOhMyZsh": true,
-            "upgradePackages": true,
-            "nonFreePackages": false
-        },
-        "docker-from-docker": "20.10",
-        "terraform": {
-            "version": "1.0.6"
-        },
-        "git": "2.35.1"
+      "ghcr.io/devcontainers/features/common-utils:1": {
+        "version": "latest"
+      },
+      "ghcr.io/devcontainers/features/github-cli:1": {
+        "version": "latest"
+      },
+      "ghcr.io/devcontainers/features/git:1": {
+        "version": "os-provided"
+      }
     }
-}
+  }

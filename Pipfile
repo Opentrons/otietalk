@@ -10,8 +10,6 @@ textual = "*"
 textual-extras = {editable = true, ref = "main", git = "https://github.com/kraanzu/textual_extras.git"}
 pyfiglet = "*"
 anyio = "*"
-
-[dev-packages]
 black = "*"
 isort = "*"
 flake8 = "*"
@@ -19,6 +17,7 @@ mypy = "*"
 bandit = "*"
 pytest = "*"
 pytest-asyncio = "*"
+opentrons-shared-data = "==6.2.0a2"
 
 [requires]
-python_version = "3.10"
+python_version = "3.11"

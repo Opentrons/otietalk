@@ -191,9 +191,7 @@ class RobotClient:
 
     async def get_run_commands(self, run_id: str) -> Response:
         """GET /runs/:run_id/commands."""
-        response = await self.httpx_client.get(
-            url=f"{self.base_url}/runs/{run_id}/commands", params={"pageLength": 300}
-        )
+        response = await self.httpx_client.get(url=f"{self.base_url}/runs/{run_id}/commands", params={"pageLength": 300})
         response.raise_for_status()
         return response
 
