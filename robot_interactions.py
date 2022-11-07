@@ -172,6 +172,12 @@ class RobotInteractions:
             )
         return None
 
+    async def delete_all_runs(self) -> None:
+        """Delete all runs present on the robot."""
+        runs = await self.robot_client.get_runs()
+        for run in runs.json()["data"]:
+            await self.robot_client.delete_run(run_id=run["id"])
+
     async def force_create_new_run(self) -> str:
         """Create a new empty run.  Stop the current run and uncurrent if necessary."""
         run_post_fail = False

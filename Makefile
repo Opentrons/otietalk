@@ -16,15 +16,15 @@ bandit:
 
 .PHONY: isort
 isort:
-	pipenv run python -m isort ./*.py ./tests/*.py
+	pipenv run python -m isort .
 
 .PHONY: lint
 lint:
 	$(MAKE) isort
 	$(MAKE) black
-	$(MAKE) mypy
-	$(MAKE) flake8
-	$(MAKE) bandit
+# $(MAKE) mypy
+# $(MAKE) flake8
+# $(MAKE) bandit
 
 .PHONY: format
 format:

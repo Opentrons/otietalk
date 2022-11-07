@@ -45,11 +45,11 @@ class TCTestRun:
         self.robot_client: RobotClient = robot_client
         self.robot_interactions: RobotInteractions = robot_interactions
         self.console = console
-        self.tc_id = await robot_interactions.get_module_id(module_model="thermocyclerModuleV1")
+        self.tc_id = await robot_interactions.get_module_id(module_model="thermocyclerModuleV2")
         self.run_id = await self.robot_interactions.force_create_new_run()
         await robot_interactions.execute_command(
             run_id=self.run_id,
-            req_body=load_module_command(model="thermocyclerModuleV1", slot_name=TC_SLOT, module_id=self.tc_id),
+            req_body=load_module_command(model="thermocyclerModuleV2", slot_name=TC_SLOT, module_id=self.tc_id),
         )
         return self
 

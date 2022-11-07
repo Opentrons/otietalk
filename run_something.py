@@ -14,11 +14,7 @@ async def stuff(robot_ip: str, robot_port: str) -> None:
     """Do some stuff with the API client or whatever."""
     async with RobotClient.make(host=f"http://{robot_ip}", port=robot_port, version="*") as robot_client:
         robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
-        run = await robot_interactions.get_current_run()
-        console.print(run)
-        if run:
-            resp = await robot_interactions.un_current_run(run)
-            await log_response(resp, True, console)
+        await robot_interactions.delete_all_runs()
 
 
 if __name__ == "__main__":
