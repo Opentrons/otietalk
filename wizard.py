@@ -75,8 +75,7 @@ class Wizard:
                 )
             )
             return port
-        else:
-            self.validate_port(port)
+        self.validate_port(port)
 
     def reset_log(self) -> bool:
         """Reset the log file."""

@@ -130,13 +130,14 @@ class RobotInteractions:
         run_id: str,
         expected_status: str,
         timeout_sec: int = 15,
+        polling_interval_sec: float = 0.1,
     ) -> Dict[str, Any]:
         """Wait until a run achieves the expected status, returning its data."""
         with anyio.fail_after(timeout_sec):  # if say a HS is shaking when you say stop it takes some seconds to actually stop
             get_run_response = await self.robot_client.get_run(run_id=run_id)
 
             while get_run_response.json()["data"]["status"] != expected_status:
-                await anyio.sleep(0.1)
+                await anyio.sleep(polling_interval_sec)
                 get_run_response = await self.robot_client.get_run(run_id=run_id)
 
         return cast(Dict[str, Any], get_run_response.json()["data"])
@@ -225,3 +226,17 @@ class RobotInteractions:
         run = await self.get_current_run(print_timing=True)
         await help()
         assert run is None
+
+    async def wait_for_all_analyses_to_complete(self) -> None:
+        """Wait for all analysis summary status to equal completed."""
+
+        async def all_analyses_are_complete() -> bool:
+            protocols = (await self.robot_client.get_protocols()).json()
+            for protocol in protocols["data"]:
+                for analysis_summary in protocol["analysisSummaries"]:
+                    if analysis_summary["status"] != "completed":
+                        return False
+            return True
+
+        while not await all_analyses_are_complete():
+            await asyncio.sleep(0.3)
