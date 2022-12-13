@@ -18,6 +18,8 @@ bandit = "*"
 pytest = "*"
 pytest-asyncio = "*"
 opentrons-shared-data = "==6.2.0a2"
+paramiko = "*"
+scp = "*"
 
 [requires]
 python_version = "3.11"

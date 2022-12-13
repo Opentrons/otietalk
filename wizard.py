@@ -1,6 +1,6 @@
 """"""
 import os
-from typing import Optional
+from typing import List, Optional
 
 from rich.console import Console
 from rich.panel import Panel
@@ -91,3 +91,7 @@ class Wizard:
                 )
             return True
         return False
+
+    def choices(self, question: str, choices: list[str], default: str) -> str:
+        """Pick a choice."""
+        return Prompt.ask(prompt=question, choices=choices, default=default)

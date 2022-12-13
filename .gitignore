@@ -131,3 +131,5 @@ dmypy.json
 .venv
 results/
 offsets.json
+
+*.tar*
