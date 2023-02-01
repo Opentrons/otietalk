@@ -1,11 +1,10 @@
 """"""
 import os
-from typing import List, Optional
+from typing import Optional
 
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
-
 from util import LOG_FILE_PATH, is_valid_IPAddress, is_valid_port
 
 
@@ -62,7 +61,8 @@ class Wizard:
             )
         elif not is_valid_port(port):
             port = Prompt.ask(
-                f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just" " hit enter) ",
+                f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just"
+                " hit enter) ",
                 console=self.console,
                 default="31950",
                 show_default=False,

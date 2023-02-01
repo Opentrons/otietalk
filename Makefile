@@ -2,33 +2,32 @@
 black:
 	pipenv run python -m black ./*.py ./tests/*.py
 
-.PHONY: flake8
-flake8:
-	pipenv run python -m flake8  ./*.py ./tests/*.py
+.PHONY: black-check
+black-check:
+	pipenv run python -m black ./*.py ./tests/*.py --check
 
 .PHONY: mypy
 mypy:
 	pipenv run python -m mypy ./*.py ./tests/*.py
 
-.PHONY: bandit
-bandit:
-	pipenv run python -m bandit -r ./*.py ./tests/*.py
+.PHONY: ruff
+ruff:
+	pipenv run python -m ruff . --fix
 
-.PHONY: isort
-isort:
-	pipenv run python -m isort .
+.PHONY: ruff-check
+ruff-check:
+	pipenv run python -m ruff .
 
 .PHONY: lint
 lint:
-	$(MAKE) isort
-	$(MAKE) black
-# $(MAKE) mypy
-# $(MAKE) flake8
-# $(MAKE) bandit
+	$(MAKE) black-check
+	$(MAKE) ruff-check
+
 
 .PHONY: format
 format:
 	$(MAKE) black
+	$(MAKE) ruff
 
 .PHONY: setup
 setup:

@@ -18,7 +18,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     software-properties-common \
     unzip \
     wget \
-    jq
+    jq \
+    sqlite3
 
 RUN echo alias ls=\'ls -l -a -G --color=auto\' >> /$USERNAME/.bashrc
 

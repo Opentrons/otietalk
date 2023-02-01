@@ -2,12 +2,10 @@ import asyncio
 import json
 import textwrap
 
-from httpx import Response
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.theme import Theme
-
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
 from util import log_response
@@ -17,7 +15,7 @@ from wizard import Wizard
 async def stuff(robot_ip: str, robot_port: str) -> None:
     """Retrieve format and output the labwareOffsets from runs."""
     async with RobotClient.make(host=f"http://{robot_ip}", port=robot_port, version="*") as robot_client:
-        robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
+        RobotInteractions(robot_client=robot_client)
         resp = await robot_client.get_runs()
         await log_response(response=resp)
         runs = resp.json()["data"]
@@ -44,7 +42,7 @@ if __name__ == "__main__":
     console = Console(theme=custom_theme)
     wizard = Wizard(console)
     markdown_text = textwrap.dedent(
-        f"""\
+        """\
         # Get get all the offsets that were used in runs on the robot.
 
         > Notes:

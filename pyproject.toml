@@ -1,9 +1,34 @@
 [tool.black]
-line-length = 140
+line-length = 120
 target-version = ['py311']
 
-[tool.pylint.messages_control]
-max-line-length = 140
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+exclude = [""]
+ignore = ["E722"]
+src = ["*.py", "tests"]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
 
-[tool.isort]
-profile = "black"
+[tool.ruff.per-file-ignores]
+"fill_db.py" = ["E501"]
+"rich_it.py" = ["E501"]
+"util.py" = ["B008"]
+
+[tool.mypy]
+strict = true
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+exclude = "__init__.py"
+

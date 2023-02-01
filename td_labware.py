@@ -1,15 +1,14 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import anyio
+from commands import load_module_command
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 from rich.theme import Theme
-
-from commands import load_module_command
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
-from util import is_valid_IPAddress, is_valid_port, log_response, prompt
+from util import prompt
 from wizard import Wizard
 
 custom_theme = Theme({"info": "dim cyan", "warning": "magenta", "danger": "bold red"})
@@ -107,7 +106,7 @@ opentrons_96_tiprack_1000ul
                     choices.remove(tiprack_slot)
             td_slot = str(
                 IntPrompt.ask(
-                    f"What slot will the Temperature Module be in?",
+                    "What slot will the Temperature Module be in?",
                     console=console,
                     choices=choices,
                 )

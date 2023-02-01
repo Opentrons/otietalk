@@ -1,9 +1,5 @@
 import asyncio
 
-from rich.console import Console
-from rich.panel import Panel
-from rich.theme import Theme
-
 from commands import (
     close_latch_command,
     deactivate_heater_command,
@@ -14,9 +10,11 @@ from commands import (
     stop_shake_command,
     wait_for_temp_command,
 )
+from rich.console import Console
+from rich.panel import Panel
+from rich.theme import Theme
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
-from util import log_response
 from wizard import Wizard
 
 HS_SLOT = "1"
@@ -55,14 +53,16 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
         for command in commands:
             await robot_interactions.execute_command(run_id=run_id, req_body=command, print_timing=True)
             if command["data"]["commandType"] in ["heaterShaker/deactivateHeater"]:
-                console.print(Panel(f"Wait 3 seconds to see if deactivate works.", style="bold blue"))
+                console.print(Panel("Wait 3 seconds to see if deactivate works.", style="bold blue"))
                 await asyncio.sleep(3)
             hs_module_data = await robot_interactions.get_module_data_by_id(hs_id)
             console.print(f"Module data after the {command['data']['commandType']} completes")
             console.print(hs_module_data)
             if command["data"]["commandType"] in ["heaterShaker/setAndWaitForShakeSpeed"]:
                 shake_watch_seconds = 10
-                console.print(Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue"))
+                console.print(
+                    Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue")
+                )
                 await asyncio.sleep(shake_watch_seconds)
 
 

@@ -5,12 +5,11 @@
 import asyncio
 import textwrap
 
+import commands
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.theme import Theme
-
-import commands
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
 from wizard import Wizard

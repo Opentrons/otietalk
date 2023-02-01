@@ -1,9 +1,5 @@
 import asyncio
 
-from rich.console import Console
-from rich.panel import Panel
-from rich.theme import Theme
-
 from commands import (
     close_latch_command,
     deactivate_heater_command,
@@ -12,6 +8,9 @@ from commands import (
     set_target_temp_command,
     stop_shake_command,
 )
+from rich.console import Console
+from rich.panel import Panel
+from rich.theme import Theme
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
 from wizard import Wizard
@@ -50,21 +49,23 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
         for command in commands:
             console.print(
                 Panel(
-                    f"[bold green]Sending Command[/]",
+                    "[bold green]Sending Command[/]",
                     style="bold magenta",
                 )
             )
             console.print(command)
             await robot_interactions.execute_simple_command(req_body=command, print_timing=True)
             if command["data"]["commandType"] in ["heaterShaker/deactivateHeater"]:
-                console.print(Panel(f"Wait 3 seconds to see if deactivate works.", style="bold blue"))
+                console.print(Panel("Wait 3 seconds to see if deactivate works.", style="bold blue"))
                 await asyncio.sleep(3)
             hs_module_data = await robot_interactions.get_module_data_by_id(hs_id)
             console.print("Module data after the command completes")
             console.print(hs_module_data)
             if command["data"]["commandType"] in ["heaterShaker/setAndWaitForShakeSpeed"]:
                 shake_watch_seconds = 10
-                console.print(Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue"))
+                console.print(
+                    Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue")
+                )
                 await asyncio.sleep(shake_watch_seconds)
 
 
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     wizard = Wizard(console)
     console.print(
         Panel(
-            f"""
+            """
 Check HS Commands Live
 Hello, let us send commands to a Heater Shaker :smiley:
 1. Have a heater shaker connected via USB and powered on.

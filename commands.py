@@ -1,10 +1,7 @@
 from typing import Dict, List, Optional
 
 from opentrons_shared_data.protocol.dev_types import (
-    ThermocyclerCycle,
     ThermocyclerRunProfileCommand,
-    ThermocyclerRunProfileCommandId,
-    ThermocyclerRunProfileParams,
 )
 
 

@@ -84,7 +84,7 @@ def is_valid_port(port: str | int) -> str:
 def timeit(func):
     async def process(func, *args, **params):
         if asyncio.iscoroutinefunction(func):
-            _console.print(f"[salmon1]This function is a coroutine.")
+            _console.print("[salmon1]This function is a coroutine.")
             return await func(*args, **params)
         else:
             _console.print("[salmon1]This is not a coroutine.")

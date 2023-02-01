@@ -2,7 +2,6 @@ import pytest
 import pytest_asyncio
 from _pytest.config.argparsing import Parser
 from rich.console import Console
-
 from robot_client import RobotClient
 
 

@@ -1,6 +1,5 @@
 import asyncio
 import random
-import time
 from typing import Any, Dict, List, Optional, cast
 
 import anyio
@@ -9,7 +8,6 @@ from anyio import create_task_group
 from httpcore import Response
 from rich.console import Console
 from rich.panel import Panel
-
 from robot_client import RobotClient
 from util import log_response, timeit
 
@@ -24,9 +22,10 @@ def help():
 class RobotInteractions:
     """Reusable amalgamations of API calls to the robot."""
 
-    def __init__(self, robot_client: RobotClient, console: Console = Console()) -> None:
+    def __init__(self, robot_client: RobotClient, console: Console = None) -> None:
+        if console is None:
+            self.console = Console()
         self.robot_client = robot_client
-        self.console = console
 
     async def execute_command(
         self,
@@ -38,7 +37,7 @@ class RobotInteractions:
     ) -> Response:
         """Post a command to a run waiting until complete then log the response."""
         panel = Panel(
-            f"[bold green]Sending Command[/]",
+            "[bold green]Sending Command[/]",
             style="bold magenta",
         )
         if print_command:
@@ -65,7 +64,7 @@ class RobotInteractions:
         self.console.print()
         self.console.print(
             Panel(
-                f"[bold green]Sending Command[/]",
+                "[bold green]Sending Command[/]",
                 style="bold magenta",
             )
         )
@@ -94,7 +93,9 @@ class RobotInteractions:
         await log_response(modules)
         ids: List[str] = [module["id"] for module in modules.json()["data"] if module["moduleModel"] == module_model]
         if len(ids) > 1:
-            raise ValueError(f"You have multiples of a module {module_model} attached and that is not supported.")  # noqa: E501
+            raise ValueError(
+                f"You have multiples of a module {module_model} attached and that is not supported."
+            )  # noqa: E501
         if len(ids) == 0:
             raise ValueError(f"No module attached to the robot has moduleModel of {module_model}")
         return ids[0]
@@ -122,7 +123,7 @@ class RobotInteractions:
         return data[0]
 
     async def get_attached_pipettes(self) -> List[str]:
-        pipettes = self.robot_client.get_pipettes()
+        self.robot_client.get_pipettes()
 
     @timeit
     async def wait_until_run_status(
@@ -133,7 +134,9 @@ class RobotInteractions:
         polling_interval_sec: float = 0.1,
     ) -> Dict[str, Any]:
         """Wait until a run achieves the expected status, returning its data."""
-        with anyio.fail_after(timeout_sec):  # if say a HS is shaking when you say stop it takes some seconds to actually stop
+        with anyio.fail_after(
+            timeout_sec
+        ):  # if say a HS is shaking when you say stop it takes some seconds to actually stop
             get_run_response = await self.robot_client.get_run(run_id=run_id)
 
             while get_run_response.json()["data"]["status"] != expected_status:
@@ -201,7 +204,9 @@ class RobotInteractions:
             current_run_id = await self.get_current_run()
             await self.stop_run(current_run_id)
             stop_timeout_sec = 15
-            await self.wait_until_run_status(run_id=current_run_id, expected_status="stopped", timeout_sec=stop_timeout_sec)
+            await self.wait_until_run_status(
+                run_id=current_run_id, expected_status="stopped", timeout_sec=stop_timeout_sec
+            )
             run = await self.get_current_run()
             if run:
                 delete_run = await self.robot_client.delete_run(run)

@@ -1,15 +1,14 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import anyio
+from commands import load_module_command
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 from rich.theme import Theme
-
-from commands import load_module_command
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
-from util import is_valid_IPAddress, is_valid_port, log_response, prompt
+from util import prompt
 from wizard import Wizard
 
 custom_theme = Theme({"info": "dim cyan", "warning": "magenta", "danger": "bold red"})

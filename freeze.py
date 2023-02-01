@@ -1,7 +1,6 @@
 import asyncio
 
 from anyio import create_task_group
-
 from base_cli import BaseCli
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
@@ -80,7 +79,6 @@ async def freeze(robot_ip: str, robot_port: str) -> None:
 
 
 if __name__ == "__main__":
-
     cli = BaseCli()
     cli.parser.description = f"""
 1. Attach {PIPETTE} pipette on the {PIPETTE_MOUNT}.

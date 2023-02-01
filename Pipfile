@@ -11,15 +11,13 @@ textual-extras = {editable = true, ref = "main", git = "https://github.com/kraan
 pyfiglet = "*"
 anyio = "*"
 black = "*"
-isort = "*"
-flake8 = "*"
 mypy = "*"
-bandit = "*"
 pytest = "*"
 pytest-asyncio = "*"
 opentrons-shared-data = "==6.2.0a2"
 paramiko = "*"
 scp = "*"
+ruff = "*"
 
 [requires]
 python_version = "3.11"

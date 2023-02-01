@@ -1,25 +1,18 @@
-import asyncio
 import ipaddress
 import os
-from logging import PlaceHolder
 
-from rich.console import Console, ConsoleOptions, RenderableType
+from rich.console import RenderableType
 from rich.json import JSON
-from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.pretty import Pretty
 from rich.style import StyleType
-from rich.syntax import Syntax
 from rich.text import Text
+from robot_client import RobotClient
 from textual import events
 from textual.app import App
-from textual.layouts.dock import DockLayout
 from textual.reactive import Reactive
-from textual.widget import Widget
 from textual.widgets import Button, ButtonPressed, Footer, Header, ScrollView
 from textual_extras.widgets import TextInput
-
-from robot_client import RobotClient
 
 
 def percent(percent, total):
@@ -67,7 +60,7 @@ class MyApp(App):
 
     async def on_mount(self, event: events.Mount) -> None:
         """Create and dock the widgets."""
-        y = os.get_terminal_size()[1]
+        os.get_terminal_size()[1]
 
         self.body = ScrollView(gutter=1)
         self.input_box = TextInput(

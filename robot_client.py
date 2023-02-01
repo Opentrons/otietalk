@@ -104,7 +104,7 @@ class RobotClient:
     async def get_health(self) -> Response:
         """GET /health."""
         response = await self.httpx_client.get(url=f"{self.base_url}/health")
-        response.raise_for_status()
+        # response.raise_for_status()
         return response
 
     async def get_openapi(self) -> Response:
@@ -115,13 +115,13 @@ class RobotClient:
 
     async def get_protocols(self) -> Response:
         """GET /protocols."""
-        response = await self.httpx_client.get(url=f"{self.base_url}/protocols")
+        response = await self.httpx_client.get(url=f"{self.base_url}/protocols", timeout=180)
         response.raise_for_status()
         return response
 
     async def get_protocol(self, protocol_id: str) -> Response:
         """GET /protocols/{protocol_id}."""
-        response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}")
+        response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}", timeout=60)
         return response
 
     async def post_protocol(self, files: List[Path]) -> Response:
@@ -129,7 +129,7 @@ class RobotClient:
         file_payload = []
         for file in files:
             file_payload.append(("files", open(file, "rb")))
-        response = await self.httpx_client.post(url=f"{self.base_url}/protocols", files=file_payload)
+        response = await self.httpx_client.post(url=f"{self.base_url}/protocols", files=file_payload, timeout=60)
         response.raise_for_status()
         return response
 
@@ -191,7 +191,9 @@ class RobotClient:
 
     async def get_run_commands(self, run_id: str) -> Response:
         """GET /runs/:run_id/commands."""
-        response = await self.httpx_client.get(url=f"{self.base_url}/runs/{run_id}/commands", params={"pageLength": 300})
+        response = await self.httpx_client.get(
+            url=f"{self.base_url}/runs/{run_id}/commands", params={"pageLength": 300}
+        )
         response.raise_for_status()
         return response
 
@@ -226,7 +228,15 @@ class RobotClient:
 
     async def get_analysis(self, protocol_id: str, analysis_id: str) -> Response:
         """GET /protocols/{protocol_id}/{analysis_id}."""
-        response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}/analyses/{analysis_id}")
+        response = await self.httpx_client.get(
+            url=f"{self.base_url}/protocols/{protocol_id}/analyses/{analysis_id}", timeout=6000
+        )
+        response.raise_for_status()
+        return response
+
+    async def get_analyses(self, protocol_id: str) -> Response:
+        """GET /protocols/{protocol_id}/{analysis_id}."""
+        response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}/analyses", timeout=60)
         response.raise_for_status()
         return response
 
