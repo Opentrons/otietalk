@@ -60,9 +60,7 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
             console.print(hs_module_data)
             if command["data"]["commandType"] in ["heaterShaker/setAndWaitForShakeSpeed"]:
                 shake_watch_seconds = 10
-                console.print(
-                    Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue")
-                )
+                console.print(Panel(f"Take a look I should be shaking!!! For {shake_watch_seconds} seconds.", style="bold blue"))
                 await asyncio.sleep(shake_watch_seconds)
 
 

@@ -93,9 +93,7 @@ class RobotInteractions:
         await log_response(modules)
         ids: List[str] = [module["id"] for module in modules.json()["data"] if module["moduleModel"] == module_model]
         if len(ids) > 1:
-            raise ValueError(
-                f"You have multiples of a module {module_model} attached and that is not supported."
-            )  # noqa: E501
+            raise ValueError(f"You have multiples of a module {module_model} attached and that is not supported.")  # noqa: E501
         if len(ids) == 0:
             raise ValueError(f"No module attached to the robot has moduleModel of {module_model}")
         return ids[0]
@@ -134,9 +132,7 @@ class RobotInteractions:
         polling_interval_sec: float = 0.1,
     ) -> Dict[str, Any]:
         """Wait until a run achieves the expected status, returning its data."""
-        with anyio.fail_after(
-            timeout_sec
-        ):  # if say a HS is shaking when you say stop it takes some seconds to actually stop
+        with anyio.fail_after(timeout_sec):  # if say a HS is shaking when you say stop it takes some seconds to actually stop
             get_run_response = await self.robot_client.get_run(run_id=run_id)
 
             while get_run_response.json()["data"]["status"] != expected_status:
@@ -204,9 +200,7 @@ class RobotInteractions:
             current_run_id = await self.get_current_run()
             await self.stop_run(current_run_id)
             stop_timeout_sec = 15
-            await self.wait_until_run_status(
-                run_id=current_run_id, expected_status="stopped", timeout_sec=stop_timeout_sec
-            )
+            await self.wait_until_run_status(run_id=current_run_id, expected_status="stopped", timeout_sec=stop_timeout_sec)
             run = await self.get_current_run()
             if run:
                 delete_run = await self.robot_client.delete_run(run)
@@ -232,16 +226,15 @@ class RobotInteractions:
         await help()
         assert run is None
 
+    async def all_analyses_are_complete(self) -> bool:
+        protocols = (await self.robot_client.get_protocols()).json()
+        for protocol in protocols["data"]:
+            for analysis_summary in protocol["analysisSummaries"]:
+                if analysis_summary["status"] != "completed":
+                    return False
+        return True
+
     async def wait_for_all_analyses_to_complete(self) -> None:
         """Wait for all analysis summary status to equal completed."""
-
-        async def all_analyses_are_complete() -> bool:
-            protocols = (await self.robot_client.get_protocols()).json()
-            for protocol in protocols["data"]:
-                for analysis_summary in protocol["analysisSummaries"]:
-                    if analysis_summary["status"] != "completed":
-                        return False
-            return True
-
-        while not await all_analyses_are_complete():
+        while not await self.all_analyses_are_complete():
             await asyncio.sleep(0.3)

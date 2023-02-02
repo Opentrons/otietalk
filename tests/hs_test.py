@@ -75,9 +75,7 @@ async def ensure_latch_closed_not_heating_or_shaking(hs_run) -> None:
     assert close_latch.json()["data"]["status"] == "succeeded"
 
     # make sure not shaking
-    stop_shake = await hs_run.robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=stop_shake_command(hs_id=hs_run.hs_id)
-    )
+    stop_shake = await hs_run.robot_interactions.execute_command(run_id=hs_run.run_id, req_body=stop_shake_command(hs_id=hs_run.hs_id))
     assert stop_shake.status_code == 201
     assert close_latch.json()["data"]["status"] == "succeeded"
 
@@ -93,9 +91,7 @@ async def test_shake_happy_path(robot_client: RobotClient, console: Console) -> 
     """Send a shake command to HS that has a latch closed.  HS should shake."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -114,9 +110,7 @@ async def test_shake_happy_path(robot_client: RobotClient, console: Console) -> 
 
     await asyncio.sleep(5)  # see with eyeballs the shake
     # stop the shaking
-    stop_shake = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=stop_shake_command(hs_id=hs_run.hs_id)
-    )
+    stop_shake = await robot_interactions.execute_command(run_id=hs_run.run_id, req_body=stop_shake_command(hs_id=hs_run.hs_id))
     assert stop_shake.status_code == 201
     assert stop_shake.json()["data"]["status"] == "succeeded"
 
@@ -131,9 +125,7 @@ async def test_temp_happy_path(robot_client: RobotClient, console: Console) -> N
     """Send a temp command to HS."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -163,9 +155,7 @@ async def test_heat_and_shake_happy_path(robot_client: RobotClient, console: Con
     """Send a temp command to HS."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -207,16 +197,12 @@ async def test_shake_blocked_by_open_latch(robot_client: RobotClient, console: C
     """Send a shake command to HS that has a latch not closed.  HS should not shake."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
     # make sure latch is open
-    open_latch: Response = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id)
-    )
+    open_latch: Response = await robot_interactions.execute_command(run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id))
     assert open_latch.status_code == 201
     hs_module_data = await robot_interactions.get_module_data_by_id(hs_run.hs_id)
     assert hs_module_data["data"]["labwareLatchStatus"] == "idle_open"
@@ -227,9 +213,7 @@ async def test_shake_blocked_by_open_latch(robot_client: RobotClient, console: C
     )
     console.print(shake.json())
     assert shake.json()["data"]["status"] == "failed"
-    assert (
-        shake.json()["data"]["error"]["detail"] == "Heater-Shaker cannot start shaking while the labware latch is open."
-    )
+    assert shake.json()["data"]["error"]["detail"] == "Heater-Shaker cannot start shaking while the labware latch is open."
 
 
 @pytest.mark.asyncio
@@ -237,9 +221,7 @@ async def test_open_latch_while_shaking(robot_client: RobotClient, console: Cons
     """Send an open latch command to HS that is shaking.  HS should not allow the latch to open."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -257,15 +239,10 @@ async def test_open_latch_while_shaking(robot_client: RobotClient, console: Cons
     assert hs_module_data["data"]["speedStatus"] == "holding at target"
 
     # try to open the latch
-    open_latch: Response = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id)
-    )
+    open_latch: Response = await robot_interactions.execute_command(run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id))
     console.print(open_latch.json())
     assert open_latch.json()["data"]["status"] == "failed"
-    assert (
-        open_latch.json()["data"]["error"]["detail"]
-        == "Heater-Shaker cannot open its labware latch while it is shaking."
-    )
+    assert open_latch.json()["data"]["error"]["detail"] == "Heater-Shaker cannot open its labware latch while it is shaking."
 
 
 @pytest.mark.asyncio
@@ -273,16 +250,12 @@ async def test_open_latch_while_latch_already_open(robot_client: RobotClient, co
     """Send an open latch command to HS that has an open latch. Should cause no issue."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
     # try to open the latch
-    open_latch: Response = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id)
-    )
+    open_latch: Response = await robot_interactions.execute_command(run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id))
     assert open_latch.status_code == 201
     assert open_latch.json()["data"]["status"] == "succeeded"
 
@@ -290,9 +263,7 @@ async def test_open_latch_while_latch_already_open(robot_client: RobotClient, co
     assert hs_module_data["data"]["labwareLatchStatus"] == "idle_open"
 
     # try to open the latch again
-    open_latch: Response = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id)
-    )
+    open_latch: Response = await robot_interactions.execute_command(run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id))
     assert open_latch.status_code == 201
     assert open_latch.json()["data"]["status"] == "succeeded"
 
@@ -305,16 +276,12 @@ async def test_close_latch_while_latch_already_closed(robot_client: RobotClient,
     """Send a close latch command to HS that has a closed latch. Should cause no issue."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
     # try to close the already closed latch
-    close_latch: Response = await robot_interactions.execute_command(
-        run_id=hs_run.run_id, req_body=close_latch_command(hs_id=hs_run.hs_id)
-    )
+    close_latch: Response = await robot_interactions.execute_command(run_id=hs_run.run_id, req_body=close_latch_command(hs_id=hs_run.hs_id))
     assert close_latch.status_code == 201
     assert close_latch.json()["data"]["status"] == "succeeded"
     hs_module_data = await robot_interactions.get_module_data_by_id(hs_run.hs_id)
@@ -326,9 +293,7 @@ async def test_increase_shake_rate_while_shaking(robot_client: RobotClient, cons
     """Increase the shake rate while already shaking. Should cause no issue."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -367,9 +332,7 @@ async def test_decrease_shake_rate_while_shaking(robot_client: RobotClient, cons
     """Decrease the shake rate while already shaking. Should cause no issue."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -412,9 +375,7 @@ async def test_invalid_shake_speed(robot_client: RobotClient, console: Console, 
     """Receive proper error responses when setting shake to invalid rpm."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -443,9 +404,7 @@ async def test_boundary_shake_speed(robot_client: RobotClient, console: Console,
     """Setting shake rpm to boundary is valid."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -478,9 +437,7 @@ async def test_out_of_range_temp(robot_client: RobotClient, console: Console, ce
     """Setting temperature to out of range temps throws appropriate error."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -506,9 +463,7 @@ async def test_increase_temp_while_heating(robot_client: RobotClient, console: C
     """While the HS is already heating, set to a new higher temp."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -545,9 +500,7 @@ async def test_decrease_temp_while_heating(robot_client: RobotClient, console: C
     """While the HS is already heating, set to a new lower temp."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -590,9 +543,7 @@ async def test_shake_rate_invalid_while_shaking(robot_client: RobotClient, conso
     """Decrease the shake rate while already shaking. Should cause no issue."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -639,9 +590,7 @@ async def test_invalid_temp_while_heating(robot_client: RobotClient, console: Co
     """While the HS is already heating, set to a invalid temp."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 
@@ -689,9 +638,7 @@ async def test_boundary_temp(robot_client: RobotClient, console: Console, celsiu
     """Setting temperature to boundary is valid."""
     robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
     # create a new run and load the HS module into that run
-    hs_run: HSTestRun = await HSTestRun.create(
-        robot_client=robot_client, robot_interactions=robot_interactions, console=console
-    )
+    hs_run: HSTestRun = await HSTestRun.create(robot_client=robot_client, robot_interactions=robot_interactions, console=console)
 
     await ensure_latch_closed_not_heating_or_shaking(hs_run=hs_run)
 

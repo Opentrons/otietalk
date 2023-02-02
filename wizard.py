@@ -61,8 +61,7 @@ class Wizard:
             )
         elif not is_valid_port(port):
             port = Prompt.ask(
-                f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just"
-                " hit enter) ",
+                f"[bold red]{port}[/] is not valid, enter a different value. (most likely it is 31950 and you can just" " hit enter) ",
                 console=self.console,
                 default="31950",
                 show_default=False,
@@ -77,18 +76,24 @@ class Wizard:
             return port
         self.validate_port(port)
 
-    def reset_log(self) -> bool:
+    def reset(self):
+        if os.path.exists(LOG_FILE_PATH):
+            os.remove(LOG_FILE_PATH)
+            self.console.print(
+                Panel(
+                    f"Removed log file {LOG_FILE_PATH}",
+                    style="bold magenta",
+                )
+            )
+
+    def reset_log(self, override=False) -> bool:
         """Reset the log file."""
+        if override:
+            self.reset()
+            return True
         response = Confirm.ask(f"Would you like to reset the log file {LOG_FILE_PATH}?")
         if response:
-            if os.path.exists(LOG_FILE_PATH):
-                os.remove(LOG_FILE_PATH)
-                self.console.print(
-                    Panel(
-                        f"Removed log file {LOG_FILE_PATH}",
-                        style="bold magenta",
-                    )
-                )
+            self.reset()
             return True
         return False
 

@@ -191,9 +191,7 @@ class RobotClient:
 
     async def get_run_commands(self, run_id: str) -> Response:
         """GET /runs/:run_id/commands."""
-        response = await self.httpx_client.get(
-            url=f"{self.base_url}/runs/{run_id}/commands", params={"pageLength": 300}
-        )
+        response = await self.httpx_client.get(url=f"{self.base_url}/runs/{run_id}/commands", params={"pageLength": 300})
         response.raise_for_status()
         return response
 
@@ -228,9 +226,7 @@ class RobotClient:
 
     async def get_analysis(self, protocol_id: str, analysis_id: str) -> Response:
         """GET /protocols/{protocol_id}/{analysis_id}."""
-        response = await self.httpx_client.get(
-            url=f"{self.base_url}/protocols/{protocol_id}/analyses/{analysis_id}", timeout=6000
-        )
+        response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}/analyses/{analysis_id}", timeout=6000)
         response.raise_for_status()
         return response
 
@@ -258,6 +254,29 @@ class RobotClient:
         response.raise_for_status()
         return response
 
+    async def get_settings(
+        self,
+    ) -> Response:
+        """GET /settings"""
+        response = await self.httpx_client.get(
+            url=f"{self.base_url}/settings",
+        )
+        response.raise_for_status()
+        return response
+
+    async def post_setting(
+        self,
+        id: str,
+        value: bool | int | str,
+    ) -> Response:
+        """POST /settings/reset."""
+        response = await self.httpx_client.post(
+            url=f"{self.base_url}/settings",
+            json={"id": id, "value": value},
+        )
+        response.raise_for_status()
+        return response
+
     async def get_modules(self) -> Response:
         """GET /modules."""
         response = await self.httpx_client.get(url=f"{self.base_url}/modules", timeout=15)
@@ -267,5 +286,20 @@ class RobotClient:
     async def get_pipettes(self) -> Response:
         """GET /pipettes."""
         response = await self.httpx_client.get(url=f"{self.base_url}/pipettes")
+        response.raise_for_status()
+        return response
+
+    async def get_instruments(self, refresh=False) -> Response:
+        """GET /instruments.
+        If refresh=True, actively scan for attached pipettes. Note: this requires disabling the pipette motors
+        and should only be done when no protocol is running and you know it won't cause a problem.
+        """
+        response = await self.httpx_client.get(url=f"{self.base_url}/instruments", params={"refresh": refresh})
+        response.raise_for_status()
+        return response
+
+    async def get_pipette_offset(self) -> Response:
+        """GET /calibrations/pipette_offset"""
+        response = await self.httpx_client.get(url=f"{self.base_url}/calibration/status")
         response.raise_for_status()
         return response

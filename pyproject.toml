@@ -1,9 +1,9 @@
 [tool.black]
-line-length = 120
+line-length = 140
 target-version = ['py311']
 
 [tool.ruff]
-line-length = 120
+line-length = 140
 target-version = "py311"
 exclude = [""]
 ignore = ["E722"]
@@ -20,6 +20,7 @@ select = [
 [tool.ruff.per-file-ignores]
 "fill_db.py" = ["E501"]
 "rich_it.py" = ["E501"]
+"OT3_perf.py" = ["E501"]
 "util.py" = ["B008"]
 
 [tool.mypy]

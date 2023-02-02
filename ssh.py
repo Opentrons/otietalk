@@ -25,7 +25,7 @@ custom_theme = Theme({"info": "dim cyan", "warning": "magenta", "danger": "bold 
 console = Console(theme=custom_theme)
 
 
-def ssh(_robot_ip: str, _action: str):
+def ssh(_robot_ip: str, action: str):
     """Do the work."""
 
     ssh_client = paramiko.SSHClient()
@@ -60,7 +60,7 @@ def ssh(_robot_ip: str, _action: str):
             if percent_done >= 100:
                 progresso.console.print(f"[bold purple]({address[0]}) {filename} downloaded")
 
-        match _action:
+        match action:  # noqa: E999 https://github.com/charliermarsh/ruff/issues/282
             case Action.GET:
                 console.print(
                     Panel(
@@ -126,4 +126,4 @@ if __name__ == "__main__":
     wizard = Wizard(console)
     robot_ip = wizard.validate_ip()
     action = wizard.choices(question="What action to take?", choices=Action.CHOICES, default=Action.GET)
-    ssh(_robot_ip=robot_ip, _action=action)
+    ssh(_robot_ip=robot_ip, action=action)
