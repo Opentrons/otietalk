@@ -100,3 +100,7 @@ class Wizard:
     def choices(self, question: str, choices: list[str], default: str) -> str:
         """Pick a choice."""
         return Prompt.ask(prompt=question, choices=choices, default=default)
+
+    def confirm(self, question: str) -> bool:
+        """Ask a yes or no question."""
+        return Confirm.ask(prompt=question)

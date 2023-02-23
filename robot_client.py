@@ -283,9 +283,9 @@ class RobotClient:
         response.raise_for_status()
         return response
 
-    async def get_pipettes(self) -> Response:
+    async def get_pipettes(self, refresh=False) -> Response:
         """GET /pipettes."""
-        response = await self.httpx_client.get(url=f"{self.base_url}/pipettes")
+        response = await self.httpx_client.get(url=f"{self.base_url}/pipettes", params={"refresh": refresh})
         response.raise_for_status()
         return response
 
@@ -298,8 +298,20 @@ class RobotClient:
         response.raise_for_status()
         return response
 
-    async def get_pipette_offset(self) -> Response:
-        """GET /calibrations/pipette_offset"""
+    async def get_calibration_status(self) -> Response:
+        """GET /calibrations/status"""
         response = await self.httpx_client.get(url=f"{self.base_url}/calibration/status")
+        response.raise_for_status()
+        return response
+
+    async def get_pipette_offset(self) -> Response:
+        """GET /calibration/pipette_offset"""
+        response = await self.httpx_client.get(url=f"{self.base_url}/calibration/pipette_offset")
+        response.raise_for_status()
+        return response
+
+    async def get_tip_length(self) -> Response:
+        """GET /calibration/tip_length"""
+        response = await self.httpx_client.get(url=f"{self.base_url}/calibration/tip_length")
         response.raise_for_status()
         return response
