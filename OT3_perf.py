@@ -6,6 +6,7 @@
 
 import asyncio
 from dataclasses import dataclass
+from pathlib import Path
 
 import pandas
 from httpx import Response
@@ -28,17 +29,30 @@ class Timing:
 async def stuff(robot_ip: str, robot_port: str) -> None:
     """Do some stuff with the API client or whatever."""
     async with RobotClient.make(host=f"http://{robot_ip}", port=robot_port, version="*") as robot_client:
-        RobotInteractions(robot_client=robot_client)
+        baseline = False
+        robot_interactions = RobotInteractions(robot_client=robot_client)
         responses: list[Response] = []
 
         async def stressor():
             tasks = await asyncio.gather(robot_client.get_health(), robot_client.get_protocols())
-            await asyncio.sleep(2.2)
+            await asyncio.sleep(5)
             return tasks
 
-        # while not await robot_interactions.all_analyses_are_complete():
-        for _ in range(10):
-            responses.extend(await stressor())
+        if not baseline:
+            enn = 5
+            protocols = []
+            for _ in range(enn):
+                protocols.append(robot_client.post_protocol([Path("loooong.json")]))
+            console.print(Panel(f"Analyze N = {enn}", style="bold dodger_blue1"))
+            posts = await asyncio.gather(*protocols)
+            for p in posts:
+                await log_response(p)
+            while not await robot_interactions.all_analyses_are_complete():
+                responses.extend(await stressor())
+        else:
+            console.print(Panel("Baseline", style="bold dodger_blue1"))
+            for _ in range(10):
+                responses.extend(await stressor())
         # run the tasks
         timings: list[Timing] = []
         for resp in responses:

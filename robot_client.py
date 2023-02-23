@@ -103,7 +103,7 @@ class RobotClient:
 
     async def get_health(self) -> Response:
         """GET /health."""
-        response = await self.httpx_client.get(url=f"{self.base_url}/health")
+        response = await self.httpx_client.get(url=f"{self.base_url}/health", timeout=60)
         # response.raise_for_status()
         return response
 
@@ -129,7 +129,7 @@ class RobotClient:
         file_payload = []
         for file in files:
             file_payload.append(("files", open(file, "rb")))
-        response = await self.httpx_client.post(url=f"{self.base_url}/protocols", files=file_payload, timeout=60)
+        response = await self.httpx_client.post(url=f"{self.base_url}/protocols", files=file_payload, timeout=120)
         response.raise_for_status()
         return response
 
