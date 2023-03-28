@@ -78,7 +78,7 @@ class RobotInteractions:
         return command
 
     async def get_current_run(self, print_timing: bool = False) -> Optional[str]:
-        """Post a simple command waiting until complete then log the response."""
+        """Get the current run id."""
         runs = await self.robot_client.get_runs()
         await log_response(runs, print_timing=print_timing, console=self.console)
         try:

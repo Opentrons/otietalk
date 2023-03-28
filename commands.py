@@ -5,7 +5,19 @@ from opentrons_shared_data.protocol.dev_types import (
 )
 
 
-def load_module_command(model: str, slot_name: str, module_id: str):
+def load_module_command(model: str, slot_name: str, module_id: str, intent: str = None):
+    if intent is not None:
+        return {
+            "data": {
+                "commandType": "loadModule",
+                "params": {
+                    "model": model,
+                    "location": {"slotName": slot_name},
+                    "moduleId": module_id,
+                },
+                "intent": intent,
+            }
+        }
     return {
         "data": {
             "commandType": "loadModule",
@@ -18,7 +30,17 @@ def load_module_command(model: str, slot_name: str, module_id: str):
     }
 
 
-def open_latch_command(hs_id: str):
+def open_latch_command(hs_id: str, intent: str = None):
+    if intent is not None:
+        return {
+            "data": {
+                "commandType": "heaterShaker/openLabwareLatch",
+                "params": {
+                    "moduleId": hs_id,
+                },
+                "intent": intent,
+            }
+        }
     return {
         "data": {
             "commandType": "heaterShaker/openLabwareLatch",
@@ -29,7 +51,17 @@ def open_latch_command(hs_id: str):
     }
 
 
-def close_latch_command(hs_id: str):
+def close_latch_command(hs_id: str, intent: str = None):
+    if intent is not None:
+        return {
+            "data": {
+                "commandType": "heaterShaker/closeLabwareLatch",
+                "params": {
+                    "moduleId": hs_id,
+                },
+                "intent": intent,
+            }
+        }
     return {
         "data": {
             "commandType": "heaterShaker/closeLabwareLatch",
@@ -40,7 +72,18 @@ def close_latch_command(hs_id: str):
     }
 
 
-def set_target_shake_speed_command(hs_id: str, rpm: int):
+def set_target_shake_speed_command(hs_id: str, rpm: int, intent: str = None):
+    if intent is not None:
+        return {
+            "data": {
+                "commandType": "heaterShaker/setAndWaitForShakeSpeed",
+                "params": {
+                    "moduleId": hs_id,
+                    "rpm": rpm,
+                },
+                "intent": intent,
+            }
+        }
     return {
         "data": {
             "commandType": "heaterShaker/setAndWaitForShakeSpeed",
@@ -52,7 +95,18 @@ def set_target_shake_speed_command(hs_id: str, rpm: int):
     }
 
 
-def stop_shake_command(hs_id: str):
+def stop_shake_command(hs_id: str, intent: str = None):
+    if intent is not None:
+        return {
+            "data": {
+                "commandType": "heaterShaker/deactivateShaker",
+                "params": {
+                    "moduleId": hs_id,
+                },
+                "intent": intent,
+            }
+        }
+
     return {
         "data": {
             "commandType": "heaterShaker/deactivateShaker",
@@ -127,7 +181,20 @@ def load_pipette_command(
     pipette_name: str,
     mount: str,
     pipette_id: Optional[str] = None,
+    intent: Optional[str] = None
 ):
+    if intent is not None:
+        return {
+            "data": {
+                "commandType": "loadPipette",
+                "params": {
+                    "pipetteName": pipette_name,
+                    "mount": mount,
+                    "pipetteId": pipette_id,
+                },
+                "intent": intent,
+            }
+        }
     return {
         "data": {
             "commandType": "loadPipette",

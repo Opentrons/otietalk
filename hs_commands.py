@@ -25,17 +25,17 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
     async with RobotClient.make(host=f"http://{robot_ip}", port=robot_port, version="*") as robot_client:
         robot_interactions: RobotInteractions = RobotInteractions(robot_client=robot_client)
         hs_id = await robot_interactions.get_module_id(module_model="heaterShakerModuleV1")
-        run_id = await robot_interactions.force_create_new_run()
+        run_id = await robot_interactions.get_current_run()
 
-        await robot_interactions.execute_command(
-            run_id=run_id,
-            req_body=load_module_command(model="heaterShakerModuleV1", slot_name=HS_SLOT, module_id=hs_id),
-        )
+        # await robot_interactions.execute_command(
+        #     run_id=run_id,
+        #     req_body=load_module_command(model="heaterShakerModuleV1", slot_name=HS_SLOT, module_id=hs_id, intent="setup"),
+        # )
 
-        _open_latch_command = open_latch_command(hs_id)
-        _close_latch_command = close_latch_command(hs_id)
-        _set_target_shake_speed_command = set_target_shake_speed_command(hs_id, 300)
-        _stop_shake_command = stop_shake_command(hs_id)
+        _open_latch_command = open_latch_command(hs_id, intent="setup")
+        _close_latch_command = close_latch_command(hs_id, intent="setup")
+        _set_target_shake_speed_command = set_target_shake_speed_command(hs_id, 300, intent="setup")
+        _stop_shake_command = stop_shake_command(hs_id, intent="setup")
         _set_target_temp_command = set_target_temp_command(hs_id, 37.00)
         _wait_for_temp_command = wait_for_temp_command(hs_id, 37.00)
         _deactivate_heater_command = deactivate_heater_command(hs_id)
@@ -45,9 +45,9 @@ async def hs_commands(robot_ip: str, robot_port: str) -> None:
             _close_latch_command,
             _set_target_shake_speed_command,
             _stop_shake_command,
-            _set_target_temp_command,
-            _wait_for_temp_command,
-            _deactivate_heater_command,
+            # _set_target_temp_command,
+            # _wait_for_temp_command,
+            # _deactivate_heater_command,
         ]
 
         for command in commands:

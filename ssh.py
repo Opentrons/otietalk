@@ -41,7 +41,7 @@ def ssh(_robot_ip: str, action: str):
     # $ROBOT_IP:31950/server/ssh_keys
 
     # local
-    key_file: Path = Path("results/key")
+    key_file: Path = Path("/root/.ssh/robot_key")
     pkey = paramiko.RSAKey.from_private_key_file(str(key_file.resolve()))
     assert key_file.is_file()
     disabled_algorithms = dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"])
@@ -91,26 +91,36 @@ def ssh(_robot_ip: str, action: str):
                 # push the new dir
                 with SCPClient(ssh_client.get_transport(), progress4=progress) as scp:
                     scp.put("results/opentrons_robot_server", "/data/opentrons_robot_server", recursive=True)
-                # stdin, stdout, stderr = ssh_client.exec_command("cd /data && tar -xf data.tar.gz")
-                # exit_status = stdout.channel.recv_exit_status()  # Blocking call
-                # if exit_status == 0:
-                #     console.print("File Put")
-                # else:
-                #     console.print("Error", exit_status)
-                # stdin, stdout, stderr = ssh_client.exec_command("rm /data/data.tar.gz")
-                # exit_status = stdout.channel.recv_exit_status()  # Blocking call
-                # if exit_status == 0:
-                #     console.print("File Put")
-                # else:
-                #     console.print("Error", exit_status)
-                # stdin, stdout, stderr = ssh_client.exec_command("systemctl restart opentrons-robot-server")
-                # exit_status = stdout.channel.recv_exit_status()  # Blocking call
-                # if exit_status == 0:
-                #     console.print("File Put")
-                # else:
-                #     console.print("Error", exit_status)
-                # # requests.post(f"http://{robot_ip}}:31950/server/restart")
-                # # restart robot server `systemctl restart opentrons-robot-server`
+            case Action.PUT:
+                task1 = progresso.add_task("[red]Uploading...", start=False)
+                # stop the robot-server
+                stdin, stdout, stderr = ssh_client.exec_command("systemctl stop opentrons-robot-server")
+                exit_status = stdout.channel.recv_exit_status()  # Blocking call
+                # whole thing
+                stdin, stdout, stderr = ssh_client.exec_command("rm -rf /data/*")
+                exit_status = stdout.channel.recv_exit_status()  # Blocking call
+                with SCPClient(ssh_client.get_transport(), progress4=progress) as scp:
+                    scp.put("fresh630alpha1.tar.gz", "/data/data.tar.gz")
+                stdin, stdout, stderr = ssh_client.exec_command("cd /data && tar -xf data.tar.gz")
+                exit_status = stdout.channel.recv_exit_status()  # Blocking call
+                if exit_status == 0:
+                    console.print("File Put")
+                else:
+                    console.print("Error", exit_status)
+                stdin, stdout, stderr = ssh_client.exec_command("rm /data/data.tar.gz")
+                exit_status = stdout.channel.recv_exit_status()  # Blocking call
+                if exit_status == 0:
+                    console.print("File Put")
+                else:
+                    console.print("Error", exit_status)
+                stdin, stdout, stderr = ssh_client.exec_command("systemctl restart opentrons-robot-server")
+                exit_status = stdout.channel.recv_exit_status()  # Blocking call
+                if exit_status == 0:
+                    console.print("File Put")
+                else:
+                    console.print("Error", exit_status)
+                # requests.post(f"http://{robot_ip}}:31950/server/restart")
+                # restart robot server `systemctl restart opentrons-robot-server`
             case Action.DELETE:
                 console.print(
                     Panel(

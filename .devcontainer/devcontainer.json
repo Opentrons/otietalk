@@ -1,52 +1,56 @@
 {
     "name": "otietalk-devcontainer",
     "build": {
-      "dockerfile": "Dockerfile",
-      "args": {
-        "VARIANT": "3.11-bullseye",
-        "USERNAME": "root",
-        "NODE_VERSION": "16"
-      }
+        "dockerfile": "Dockerfile",
+        "args": {
+            "VARIANT": "3.11-bullseye",
+            "USERNAME": "root",
+            "NODE_VERSION": "16"
+        }
     },
     "remoteUser": "root",
     "mounts": [
-      "source=commandhistory-otietalk,target=/commandhistory,type=volume",
-      "source=extensions-otietalk,target=/root/.vscode-server/extensions,type=volume",
-      "source=cache-otietalk,target=/root/.cache,type=volume",
-      "source=local-otietalk,target=/root/.local,type=volume"
+        "source=commandhistory-otietalk,target=/commandhistory,type=volume",
+        "source=extensions-otietalk,target=/root/.vscode-server/extensions,type=volume",
+        "source=cache-otietalk,target=/root/.cache,type=volume",
+        "source=local-otietalk,target=/root/.local,type=volume"
     ],
     "runArgs": ["--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
-    "settings": {
-      "python.linting.enabled": true,
-      "python.formatting.provider": "black",
-      "python.terminal.activateEnvironment": false
-    },
-    "extensions": [
-      "ms-python.python",
-      "ms-python.vscode-pylance",
-      "dbaeumer.vscode-eslint",
-      "esbenp.prettier-vscode",
-      "editorconfig.editorconfig",
-      "streetsidesoftware.code-spell-checker",
-      "humao.rest-client",
-      "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
-      "bierner.markdown-mermaid",
-      "redhat.vscode-yaml",
-      "ms-vscode.makefile-tools",
-      "yzhang.markdown-all-in-one",
-      "eamodio.gitlens",
-      "mutantdino.resourcemonitor"
-    ],
-    "postCreateCommand": "",
-    "features": {
-      "ghcr.io/devcontainers/features/common-utils:1": {
-        "version": "latest"
-      },
-      "ghcr.io/devcontainers/features/github-cli:1": {
-        "version": "latest"
-      },
-      "ghcr.io/devcontainers/features/git:1": {
-        "version": "os-provided"
-      }
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.linting.enabled": true,
+                "python.formatting.provider": "black",
+                "python.terminal.activateEnvironment": false
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "editorconfig.editorconfig",
+                "streetsidesoftware.code-spell-checker",
+                "humao.rest-client",
+                "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
+                "bierner.markdown-mermaid",
+                "redhat.vscode-yaml",
+                "ms-vscode.makefile-tools",
+                "yzhang.markdown-all-in-one",
+                "eamodio.gitlens",
+                "mutantdino.resourcemonitor"
+            ],
+            "postCreateCommand": "",
+            "features": {
+                "ghcr.io/devcontainers/features/common-utils:1": {
+                    "version": "latest"
+                },
+                "ghcr.io/devcontainers/features/github-cli:1": {
+                    "version": "latest"
+                },
+                "ghcr.io/devcontainers/features/git:1": {
+                    "version": "os-provided"
+                }
+            }
+        }
     }
-  }
+}

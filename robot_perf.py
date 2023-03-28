@@ -14,7 +14,6 @@ from rich.panel import Panel
 from rich.theme import Theme
 from robot_client import RobotClient
 from robot_interactions import RobotInteractions
-from util import log_response
 from wizard import Wizard
 
 OT2 = "OT2"
@@ -81,7 +80,7 @@ async def stuff(robot_ip: str, robot_port: str, robot: str, baseline: str, build
                     db=db,
                 )
             )
-       # await log_response(resp)
+        # await log_response(resp)
         df = pandas.DataFrame(timings)
         # console.print(df)
         console.print(Panel("Endpoints", style="bold dodger_blue1"))
