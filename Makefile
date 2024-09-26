@@ -1,6 +1,6 @@
 .PHONY: black
 black:
-	pipenv run python -m black ./*.py ./tests/*.py
+	pipenv run python -m black ./*.py ./tests/*.py ./analyze/*.py
 
 .PHONY: black-check
 black-check:
@@ -12,11 +12,11 @@ mypy:
 
 .PHONY: ruff
 ruff:
-	pipenv run python -m ruff . --fix
+	pipenv run python -m ruff check . --fix --unsafe-fixes
 
 .PHONY: ruff-check
 ruff-check:
-	pipenv run python -m ruff .
+	pipenv run python -m ruff check .
 
 .PHONY: lint
 lint:

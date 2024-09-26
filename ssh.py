@@ -1,4 +1,3 @@
-import sys
 import time
 from pathlib import Path
 
@@ -6,10 +5,8 @@ import paramiko
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import BarColumn, Progress, TextColumn
-from rich.table import Column
 from rich.theme import Theme
 from scp import SCPClient
-
 from wizard import Wizard
 
 
@@ -44,7 +41,7 @@ def ssh(_robot_ip: str, action: str):
     key_file: Path = Path("results/key")
     pkey = paramiko.RSAKey.from_private_key_file(str(key_file.resolve()))
     assert key_file.is_file()
-    disabled_algorithms = dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"])
+    disabled_algorithms = {"pubkeys": ["rsa-sha2-512", "rsa-sha2-256"]}
     # must have disabled_algorithms so it uses the 2048?
     ssh_client.connect(hostname=_robot_ip, username="root", pkey=pkey, disabled_algorithms=disabled_algorithms)
     text_column = TextColumn("{task.description}")

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Upload App</title>
+</head>
+<body>
+    <h1>Upload Protocol and CSV Files</h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <label for="protocol_file">Protocol File:</label>
+        <input type="file" name="protocol_file" id="protocol_file" required><br><br>
+        <label for="csv_file">CSV File:</label>
+        <input type="file" name="csv_file" id="csv_file" required><br><br>
+        <input type="submit" value="Submit">
+        <!-- Need to add a labware file selector that allows multiselect -->
+    </form>
+</body>
+</html>

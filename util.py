@@ -31,7 +31,8 @@ async def log_response(response: Response, print_timing: bool = False, console: 
             req_body = json.loads(response.request.read().decode("utf8").replace("'", '"'))
             formatted_request_body = json.dumps(req_body, indent=4)
     except:
-        console.print_exception()
+        console.print("Error parsing request body")
+        # console.print_exception()
 
     elapsed = response.elapsed.total_seconds()
     elapsed_output = str(elapsed)

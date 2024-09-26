@@ -1,0 +1,15 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY . /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 5000
+
+RUN mkdir -p /data/protocol
+RUN mkdir -p /data/result
+RUN mkdir -p /data/labware
+
+CMD ["python", "app.py"]

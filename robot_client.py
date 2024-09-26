@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 import contextlib
+import json
 from pathlib import Path
 from typing import Any, AsyncGenerator, Dict, List
 
@@ -124,11 +125,44 @@ class RobotClient:
         response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}", timeout=60)
         return response
 
-    async def post_protocol(self, files: List[Path]) -> Response:
-        """POST /protocols."""
+    async def post_data_file(self, files: List[Path] | bytes) -> Response:
         file_payload = []
-        for file in files:
-            file_payload.append(("files", open(file, "rb")))
+        if isinstance(files, bytes):
+            file_payload.append(("file", files))
+        else:
+            for file in files:
+                file_payload.append(("file", open(file, "rb")))
+        response = await self.httpx_client.post(url=f"{self.base_url}/dataFiles", files=file_payload, timeout=120)
+        return response
+
+    async def post_protocol(self, files: List[Path] | bytes, labware_files=None, run_time_parameter_values=None, run_time_parameter_files=None) -> Response:
+        """POST /protocols."""
+        if run_time_parameter_files is None:
+            run_time_parameter_files = {}
+        if run_time_parameter_values is None:
+            run_time_parameter_values = {}
+        file_payload = []
+        if isinstance(files, bytes):
+            file_payload.append(("files", files))
+        else:
+            for file in files:
+                file_payload.append(("files", open(file, "rb")))
+        if labware_files is not None:
+            raise NotImplementedError("Labware files are not yet supported")
+        # Include the form fields (JSON data) as strings
+        file_payload.append(
+            (
+                "runTimeParameterValues",
+                (None, json.dumps(run_time_parameter_values), "application/json"),
+            )
+        )
+        file_payload.append(
+            (
+                "runTimeParameterFiles",
+                (None, json.dumps(run_time_parameter_files), "application/json"),
+            )
+        )
+        file_payload.append(("protocolKind", (None, "standard")))
         response = await self.httpx_client.post(url=f"{self.base_url}/protocols", files=file_payload, timeout=120)
         response.raise_for_status()
         return response
@@ -227,6 +261,14 @@ class RobotClient:
     async def get_analysis(self, protocol_id: str, analysis_id: str) -> Response:
         """GET /protocols/{protocol_id}/{analysis_id}."""
         response = await self.httpx_client.get(url=f"{self.base_url}/protocols/{protocol_id}/analyses/{analysis_id}", timeout=6000)
+        response.raise_for_status()
+        return response
+
+    async def get_analysis_as_doc(self, protocol_id: str, analysis_id: str) -> Response:
+        """GET /protocols/{protocol_id}/{analysis_id}."""
+        response = await self.httpx_client.get(
+            url=f"{self.base_url}/protocols/{protocol_id}/analyses/{analysis_id}/asDocument", timeout=6000
+        )
         response.raise_for_status()
         return response
 

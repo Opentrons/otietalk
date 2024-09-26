@@ -1,0 +1,18 @@
+ARG OPENTRONS_VERSION=edge
+FROM opentrons-base:${OPENTRONS_VERSION}
+
+WORKDIR /opentrons
+
+# Install dependencies
+RUN make setup-py -j
+
+WORKDIR /opentrons/robot-server
+
+# Set the port via environment variable
+ENV PORT=31950
+
+# Expose the port
+EXPOSE ${PORT}
+
+# Default command
+CMD ["sh", "-c", "python -m pipenv run uvicorn robot_server.app:app --host 0.0.0.0 --port ${PORT} --ws wsproto --lifespan on"]
