@@ -1,4 +1,3 @@
-ARG OPENTRONS_VERSION=edge
 FROM python:3.10-slim-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -16,6 +15,7 @@ RUN apt update && \
 WORKDIR /opentrons
 
 # Clone the Opentrons repository
+ARG OPENTRONS_VERSION=edge
 ARG CACHEBUST=1
 RUN git clone --branch $OPENTRONS_VERSION --depth 1 https://github.com/Opentrons/opentrons .
 

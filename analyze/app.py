@@ -21,6 +21,7 @@ HOST_LABWARE = Path(os.getcwd(), "labware")
 HOST_PROTOCOLS_ROOT = Path(os.getcwd(), "protocols")
 HOST_RESULTS = Path(os.getcwd(), "results")
 
+
 def test_connections():
     message = {"flexStatusCode": 9999, "ot2StatusCode": 9999}
     headers = {"Opentrons-Version": "*"}
@@ -36,7 +37,8 @@ def test_connections():
         print("Error connecting to services:", e)
     return message
 
-async def initial_analyze(protocol,csv=None,labware=None) -> None:
+
+async def initial_analyze(protocol, csv=None, labware=None) -> None:
     """Do some stuff with the API client or whatever."""
     async with RobotClient.make(host=FLEX_SERVER, port=FLEX_PORT, version="*") as robot_client:
         robot_interactions = RobotInteractions(robot_client=robot_client)
@@ -77,6 +79,7 @@ async def initial_analyze(protocol,csv=None,labware=None) -> None:
 
         protocol_details = await robot_client.get_protocol(protocol_id)
         await log_response(protocol_details, print_timing=True, console=console)
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
