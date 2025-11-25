@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import pytest
-from commands import (
+from clients.robot_client import RobotClient
+from clients.robot_interactions import RobotInteractions
+from interactions.commands import (
     close_lid,
     deactivate_block,
     deactivate_lid,
@@ -12,11 +14,10 @@ from commands import (
     set_lid_temp,
     wait_block_temp,
     wait_lid_temp,
+    ThermocyclerProfile,
 )
 from rich.console import Console
 from rich.panel import Panel
-from robot_client import RobotClient
-from robot_interactions import RobotInteractions
 
 TC_SLOT = "7"
 
@@ -39,10 +40,10 @@ class TCTestRun:
     console: Console
 
     @classmethod
-    async def create(cls, robot_client, robot_interactions, console) -> TCTestRun:
+    async def create(cls, robot_client: RobotClient, robot_interactions: RobotInteractions, console: Console) -> TCTestRun:
         self: TCTestRun = TCTestRun()
-        self.robot_client: RobotClient = robot_client
-        self.robot_interactions: RobotInteractions = robot_interactions
+        self.robot_client = robot_client
+        self.robot_interactions = robot_interactions
         self.console = console
         self.tc_id = await robot_interactions.get_module_id(module_model="thermocyclerModuleV2")
         self.run_id = await self.robot_interactions.force_create_new_run()
@@ -53,7 +54,7 @@ class TCTestRun:
         return self
 
 
-async def starting_state(tc_run):
+async def starting_state(tc_run: TCTestRun) -> None:
     # open the lid
     tc_module_data = await tc_run.robot_interactions.get_module_data_by_id(tc_run.tc_id)
     if tc_module_data["data"]["lidStatus"] != "open":
@@ -154,7 +155,7 @@ async def test_run_profile_happy_path(robot_client: RobotClient, console: Consol
     await starting_state(tc_run=tc_run)
 
     final_target = 35
-    profiles = [{"celsius": 37, "holdSeconds": 10}, {"celsius": final_target, "holdSeconds": 10}]
+    profiles: ThermocyclerProfile = [{"celsius": 37, "holdSeconds": 10}, {"celsius": final_target, "holdSeconds": 10}]
     execute_profile = await robot_interactions.execute_command(
         # run_id=tc_run.run_id, req_body=run_profile2(tc_id=tc_run.tc_id, profiles=profiles, block_max_volume_ul=30)
         run_id=tc_run.run_id,

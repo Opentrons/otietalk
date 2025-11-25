@@ -3,7 +3,10 @@ from __future__ import annotations
 import asyncio
 
 import pytest
-from commands import (
+from clients.robot_client import RobotClient
+from clients.robot_interactions import RobotInteractions
+from httpx import Response
+from interactions.commands import (
     close_latch_command,
     deactivate_heater_command,
     load_module_command,
@@ -13,10 +16,7 @@ from commands import (
     stop_shake_command,
     wait_for_temp_command,
 )
-from httpcore import Response
 from rich.console import Console
-from robot_client import RobotClient
-from robot_interactions import RobotInteractions
 
 HS_SLOT = "1"
 HS_SHAKE_SPEED_RANGE = 40
@@ -45,10 +45,10 @@ class HSTestRun:
     console: Console
 
     @classmethod
-    async def create(cls, robot_client, robot_interactions, console) -> HSTestRun:
+    async def create(cls, robot_client: RobotClient, robot_interactions: RobotInteractions, console: Console) -> HSTestRun:
         self: HSTestRun = HSTestRun()
-        self.robot_client: RobotClient = robot_client
-        self.robot_interactions: RobotInteractions = robot_interactions
+        self.robot_client = robot_client
+        self.robot_interactions = robot_interactions
         self.console = console
         self.hs_id = await robot_interactions.get_module_id(module_model="heaterShakerModuleV1")
         self.run_id = await self.robot_interactions.force_create_new_run()
@@ -59,7 +59,7 @@ class HSTestRun:
         return self
 
 
-async def ensure_latch_closed_not_heating_or_shaking(hs_run) -> None:
+async def ensure_latch_closed_not_heating_or_shaking(hs_run: HSTestRun) -> None:
     # make sure not heating
     deactivate_heater = await hs_run.robot_interactions.execute_command(
         run_id=hs_run.run_id, req_body=deactivate_heater_command(hs_id=hs_run.hs_id)
@@ -263,9 +263,9 @@ async def test_open_latch_while_latch_already_open(robot_client: RobotClient, co
     assert hs_module_data["data"]["labwareLatchStatus"] == "idle_open"
 
     # try to open the latch again
-    open_latch: Response = await robot_interactions.execute_command(run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id))
-    assert open_latch.status_code == 201
-    assert open_latch.json()["data"]["status"] == "succeeded"
+    open_latch_again = await robot_interactions.execute_command(run_id=hs_run.run_id, req_body=open_latch_command(hs_id=hs_run.hs_id))
+    assert open_latch_again.status_code == 201
+    assert open_latch_again.json()["data"]["status"] == "succeeded"
 
     hs_module_data = await robot_interactions.get_module_data_by_id(hs_run.hs_id)
     assert hs_module_data["data"]["labwareLatchStatus"] == "idle_open"
@@ -476,7 +476,7 @@ async def test_increase_temp_while_heating(robot_client: RobotClient, console: C
     assert temp.json()["data"]["status"] == "succeeded"
 
     # try to heat to a new higher temp
-    celsius: float = VALID_HEAT_TARGET_PLUS_2
+    celsius = VALID_HEAT_TARGET_PLUS_2
     temp = await robot_interactions.execute_command(
         run_id=hs_run.run_id, req_body=set_target_temp_command(hs_id=hs_run.hs_id, celsius=celsius)
     )
@@ -515,7 +515,7 @@ async def test_decrease_temp_while_heating(robot_client: RobotClient, console: C
     # try to cool (passive) to a new lower temp
     # cooling takes a while since it is not active
     # I put my hand on it as a heat sink
-    celsius: float = 37
+    celsius = 37
     temp = await robot_interactions.execute_command(
         run_id=hs_run.run_id, req_body=set_target_temp_command(hs_id=hs_run.hs_id, celsius=celsius)
     )

@@ -1,38 +1,24 @@
-.PHONY: black
-black:
-	pipenv run python -m black ./*.py ./tests/*.py ./analyze/*.py
-
-.PHONY: black-check
-black-check:
-	pipenv run python -m black ./*.py ./tests/*.py --check
-
 .PHONY: mypy
 mypy:
-	pipenv run python -m mypy ./*.py ./tests/*.py
+	uv run mypy --namespace-packages .
 
 .PHONY: ruff
 ruff:
-	pipenv run python -m ruff check . --fix --unsafe-fixes
+	uv run ruff check . --fix --unsafe-fixes
 
 .PHONY: ruff-check
 ruff-check:
-	pipenv run python -m ruff check .
+	uv run ruff check .
 
 .PHONY: lint
 lint:
-	$(MAKE) black-check
 	$(MAKE) ruff-check
-
-
-.PHONY: format
-format:
-	$(MAKE) black
-	$(MAKE) ruff
+	$(MAKE) mypy
 
 .PHONY: setup
 setup:
-	pipenv install -d
+	uv sync --python 3.14 --frozen
 
 .PHONY: teardown
 teardown:
-	pipenv --rm
+	rm -rf .venv

@@ -1,0 +1,109 @@
+import asyncio
+import ipaddress
+import json
+import sys
+import time
+from pathlib import Path
+from typing import Any, Callable
+
+from anyio import to_thread
+from httpx import Response
+from rich.console import Console
+
+PROJECT_ROOT = Path(__file__).parent.parent
+
+LOG_FILE_PATH = Path(PROJECT_ROOT, "responses.log")
+
+_console = Console()
+
+
+async def prompt(message: str) -> str:
+    def _prompt() -> str:
+        print(message)
+        return sys.stdin.readline()
+
+    return await to_thread.run_sync(_prompt)
+
+
+async def log_response(response: Response, print_timing: bool = False, console: Console = Console()) -> None:
+    """Log the response status, url, timing, and json response."""
+    endpoint = f"\nstatus_code = {response.status_code}\n{response.request.method} {response.url}"  # noqa: E501
+    formatted_response_body = json.dumps(response.json(), indent=4)
+    formatted_request_body = ""
+    try:
+        if response.request.read():
+            req_body = json.loads(response.request.read().decode("utf8").replace("'", '"'))
+            formatted_request_body = json.dumps(req_body, indent=4)
+    except:
+        console.print("Error parsing request body")
+        # console.print_exception()
+
+    elapsed = response.elapsed.total_seconds()
+    elapsed_output = str(elapsed)
+    if elapsed > 1:
+        elapsed_output = f"{str(elapsed)} *LONG*"
+    if print_timing:
+        console.print(endpoint)
+        console.print(elapsed_output)
+        # console.print(formatted_response_body) # too big to do in console usefully
+    with open(LOG_FILE_PATH, "a") as log:
+        log.write(str(time.time_ns()))
+        log.write(endpoint)
+        log.write("\n")
+        if formatted_request_body != "":
+            log.write("Request Body")
+            log.write("\n")
+            log.write(formatted_request_body)
+            log.write("\n")
+        log.write("Elapsed time seconds")
+        log.write("\n")
+        log.write(elapsed_output)
+        log.write("\n")
+        log.write(formatted_response_body)
+        log.write("\n____________________________________\n")
+
+
+def is_valid_IPAddress(sample_str: str) -> bool:
+    """Returns True if given string is a
+    valid IP Address, else returns False"""
+    result = True
+    if sample_str in ["host.docker.internal", "localhost"]:
+        return result
+    try:
+        ipaddress.ip_network(sample_str)
+    except:
+        result = False
+    return result
+
+
+def is_valid_port(port: str | int) -> bool:
+    """Returns True if given string is a
+    valid IP Address, else returns False"""
+    if isinstance(port, str):
+        port = int(port.strip(" "))
+    if 1 <= port <= 65535:
+        return True
+    return False
+
+def timeit(func: Callable[..., Any]) -> Callable[..., Any]:
+    async def process(func: Callable[..., Any], *args: Any, **params: Any) -> Any:
+        if asyncio.iscoroutinefunction(func):
+            _console.print("[salmon1]This function is a coroutine.")
+            return await func(*args, **params)
+        else:
+            _console.print("[salmon1]This is not a coroutine.")
+            return func(*args, **params)
+
+    async def helper(*args: Any, **params: Any) -> Any:
+        _console.print("[bold bright_yellow]----------------------[/bold bright_yellow]")
+        _console.print(f"[bold salmon1]Timing function {func.__name__}")
+        _console.print(f"[bold dark_blue]params {params}[/bold dark_blue]")
+        start = time.time()
+        result = await process(func, *args, **params)
+        _console.print(
+            f"[bold green4]This function took [bold bright_green]{time.time() - start}",
+        )
+        return result
+
+    return helper
+    return helper
